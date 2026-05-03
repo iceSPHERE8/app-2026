@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,9 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body
-        className="antialiased"
-      >
+      {/* 
+         1. 移除 geist.variable
+         2. 确保 className 包含 font-sans
+         3. 因为你在 globals.css 的 @theme 中已经把 sarasamono 设置为 --font-sans 的首选
+      */}
+      <body className={cn("font-sans antialiased")}>
         {children}
       </body>
     </html>

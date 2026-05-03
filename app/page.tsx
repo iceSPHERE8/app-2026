@@ -1,10 +1,10 @@
 import Image from "next/image";
 
-import ImageStack from "../components/ImageStack";
+import ImageStack from "./components/ImageStack";
 
-import Header from "../components/layout/header";
-import ShowcaseList from "../components/ShowcaseList";
-import GPGPUFlowParticles from "../components/canvas/GPGPUFlowParticles";
+import Header from "./components/layout/header";
+import ShowcaseList from "./components/ShowcaseList";
+import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
 
 export default function Home() {
     return (
