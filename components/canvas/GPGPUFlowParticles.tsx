@@ -10,11 +10,11 @@ interface GPGPUFlowParticlesProps {
 }
 
 const GPGPUFlowParticles: React.FC<GPGPUFlowParticlesProps> = ({
-  count = 6500,                    // 适当增加数量
+  count = 2500,                    // 适当增加数量
   imageFolder = '/images/display/',
 }) => {
   return (
-    <div className="w-full h-[640px] absolute inset-0">   {/* 改成 absolute + inset-0 更占满 */}
+    <div className="w-full h-[720] absolute inset-0">   {/* 改成 absolute + inset-0 更占满 */}
       <Canvas
         camera={{ 
           position: [0, 0, 22],       // 拉远相机，让视野更大

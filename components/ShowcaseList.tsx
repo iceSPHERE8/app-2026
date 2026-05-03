@@ -13,9 +13,16 @@ const lists = [
     "/images/display/de9ffa09a3742c3354326b84bafecaf6.jpg",
 ];
 
+const ShowcaseItem: Object = {
+    src:"/images/display/2b70f6c9c5767d65ac14f9529ca56e7f.jpg",
+    title: "title",
+    description: "2025",
+    filter: "Individual"
+}
+
 export default function ShowcaseList() {
     return (
-        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-4 mt-24 mb-24 px-8">
+        <div className="columns-2 sm:columns-4 lg:columns-5 xl:columns-7 gap-4 mt-24 mb-24 px-8">
             {lists.map((src, index) => (
                 <div
                     key={index}

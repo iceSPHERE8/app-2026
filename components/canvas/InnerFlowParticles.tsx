@@ -247,7 +247,19 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
 }) => {
     const { gl, viewport } = useThree();
     const size = Math.ceil(Math.sqrt(count));
-    const particleTexture = useTexture(`${imageFolder}1.png`);
+    
+    const particleTextures =useTexture([
+        `${imageFolder}1.png`,
+        `${imageFolder}2.png`,
+    ]);
+
+    const textureIndexAttribute = useMemo(() => {
+        const indices = new Float32Array(count);
+        for (let i = 0; i < count; i++) {
+            indices[i] = Math.floor(Math.random() * particleTextures.length);
+        }
+        return new THREE.InstancedBufferAttribute(indices, 1, false);
+    }, [count, particleTextures.length]);
 
     // 用于追踪鼠标是否悬停在画布上
     const [isHovered, setIsHovered] = useState(false);
@@ -301,36 +313,77 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
 
     const material = useMemo(() => {
         const mat = new THREE.MeshBasicMaterial({
-            map: particleTexture,
             transparent: true,
             depthTest: false,
             alphaTest: 0.05,
-            // blending: THREE.AdditiveBlending,
         });
 
         mat.onBeforeCompile = (shader) => {
+            // 1. 准备 Uniforms
             shader.uniforms.uPosTexture = { value: null };
             shader.uniforms.uTexSize = { value: size };
+            shader.uniforms.uTextureCount = { value: particleTextures.length };
+            particleTextures.forEach((tex, i) => {
+                shader.uniforms[`uTexture${i}`] = { value: tex };
+            });
+
+            // 2. Vertex Shader 修复
+            // 将声明放在 main 之前
             shader.vertexShader = `
-        uniform sampler2D uPosTexture;
-        uniform float uTexSize;
-        ${shader.vertexShader}
-      `.replace(
+                attribute float textureIndex;
+                varying float vTexIndex;
+                varying vec2 vInstanceUv; // 我们自己传 UV，避免和内置 vUv 冲突
+                uniform sampler2D uPosTexture;
+                uniform float uTexSize;
+            ` + shader.vertexShader;
+
+            shader.vertexShader = shader.vertexShader.replace(
                 "#include <begin_vertex>",
                 `
-            float i = float(gl_InstanceID);
-            vec2 uv = vec2(mod(i, uTexSize) + 0.5, floor(i / uTexSize) + 0.5) / uTexSize;
-            vec4 posSample = texture2D(uPosTexture, uv);
+                #include <begin_vertex>
+                
+                float instanceIdx = float(gl_InstanceID);
+                vec2 dataUV = vec2(mod(instanceIdx, uTexSize) + 0.5, floor(instanceIdx / uTexSize) + 0.5) / uTexSize;
+                vec4 posSample = texture2D(uPosTexture, dataUV);
 
-            float vScale = posSample.w;
+                vTexIndex = textureIndex;
+                vInstanceUv = uv; // uv 是 geometry 提供的原始属性
 
-            vec3 transformed = vec3(position * vScale + posSample.xyz);
-        `,
+                float vScale = posSample.w;
+                // 这里的 transformed 是 Three.js 内部变量
+                transformed = position * vScale + posSample.xyz;
+                `
             );
+
+            // 3. Fragment Shader 修复
+            shader.fragmentShader = `
+                varying float vTexIndex;
+                varying vec2 vInstanceUv;
+                uniform float uTextureCount;
+                ${particleTextures.map((_, i) => `uniform sampler2D uTexture${i};`).join("\n")}
+            ` + shader.fragmentShader;
+
+            shader.fragmentShader = shader.fragmentShader.replace(
+                "#include <map_fragment>",
+                `
+                vec4 texColor = vec4(1.0);
+                float idx = floor(vTexIndex + 0.5);
+
+                ${particleTextures.map((_, i) => `
+                    if (abs(idx - ${i}.0) < 0.1) {
+                        texColor = texture2D(uTexture${i}, vInstanceUv);
+                    }
+                `).join("\n")}
+
+                diffuseColor *= texColor;
+                `
+            );
+
             mat.userData.shader = shader;
         };
+
         return mat;
-    }, [particleTexture, size]);
+    }, [particleTextures, size]);
 
     useFrame((state, delta) => {
         const d = Math.min(delta, 0.05);
@@ -373,7 +426,13 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
             </mesh>
 
             <instancedMesh args={[null!, null!, count]} frustumCulled={false}>
-                <planeGeometry args={[0.64, 0.64]} />
+                <planeGeometry args={[0.64, 0.64]}>
+                    {/* 添加 per-instance 属性 */}
+                    <instancedBufferAttribute
+                        attach="attributes-textureIndex" // 注意这里，Shader 里对应的就是 textureIndex
+                        args={[textureIndexAttribute.array, 1]}
+                    />
+                </planeGeometry>
                 <primitive object={material} attach="material" />
             </instancedMesh>
         </group>
