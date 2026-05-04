@@ -28,7 +28,7 @@ export default function Header() {
                                             ? "after:w-full" 
                                             : "after:w-0 hover:after:w-full"}`}
                                 >
-                                    Individual
+                                    All Works
                                 </Link>
                             </li>
 
@@ -42,7 +42,7 @@ export default function Header() {
                                             ? "after:w-full" 
                                             : "after:w-0 hover:after:w-full"}`}
                                 >
-                                    From Work
+                                    Tool lab
                                 </Link>
                             </li>
 
@@ -56,12 +56,12 @@ export default function Header() {
                                             ? "after:w-full" 
                                             : "after:w-0 hover:after:w-full"}`}
                                 >
-                                    Others
+                                    Contact / Inquiry
                                 </Link>
                             </li>
                         </nav>
                     </div>
-                    <div className="text-4xl">iceSphere8@outlook.com</div>
+                    {/* <div className="text-4xl">iceSphere8@outlook.com</div> */}
                 </div>
             </header>
         </>

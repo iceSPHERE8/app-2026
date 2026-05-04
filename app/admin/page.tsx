@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LoginForm } from "./components/ui/login-form";
+import { LoginForm } from "./components/layout/login-form";
 
 import Cookies from "js-cookie";
+import Dashboard from "./components/layout/dashboard";
 
 export default function AdminPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,11 +44,6 @@ export default function AdminPage() {
 
     // 认证后的管理界面
     return (
-        <div className="p-8 max-w-6xl mx-auto admin-theme">
-            {" "}
-            {/* 记得加上你之前配置的 admin-theme 类 */}
-            <h1 className="text-3xl font-bold mb-8">Showcase 管理后台</h1>
-            {/* ... 渲染列表和编辑弹窗 ... */}
-        </div>
+        <Dashboard />
     );
 }
