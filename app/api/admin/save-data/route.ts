@@ -5,38 +5,32 @@ import path from 'path';
 
 export async function POST(request: Request) {
     try {
-        const { type, data } = await request.json();
-        
-        // 确定存储路径：项目根目录/data/xxx.json
-        const dirPath = path.join(process.cwd(), 'data');
-        const filePath = path.join(dirPath, `${type}.json`);
+        const { type, data, id } = await request.json();
+        const filePath = path.join(process.cwd(), 'data', `${type}.json`);
 
-        // 确保目录存在
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath);
-        }
-
-        // 读取现有数据
-        let existingData = [];
+        let list = [];
         if (fs.existsSync(filePath)) {
-            const fileContent = fs.readFileSync(filePath, 'utf8');
-            existingData = JSON.parse(fileContent);
+            list = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         }
 
-        // 插入新数据（带上 ID 和时间戳）
-        const newData = {
-            id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
-            ...data
-        };
-        existingData.unshift(newData);
+        if (id) {
+            // 编辑逻辑：找到对应的 ID 并替换数据
+            list = list.map((item: any) => 
+                item.id === id ? { ...item, ...data, updatedAt: new Date().toISOString() } : item
+            );
+        } else {
+            // 新建逻辑
+            const newItem = {
+                id: Date.now().toString(),
+                createdAt: new Date().toISOString(),
+                ...data
+            };
+            list.unshift(newItem);
+        }
 
-        // 写回文件
-        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
-
-        return NextResponse.json({ success: true, item: newData });
+        fs.writeFileSync(filePath, JSON.stringify(list, null, 2));
+        return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Save error:", error);
-        return NextResponse.json({ success: false, error: "写入失败" }, { status: 500 });
+        return NextResponse.json({ success: false }, { status: 500 });
     }
 }
