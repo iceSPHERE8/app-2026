@@ -29,7 +29,7 @@ export default function Home() {
             <Header />
 
             <div className="w-full mx-auto p-0">
-                <ShowcaseList />
+                <ShowcaseList type={"all-works"} />
                 
             </div>
 
