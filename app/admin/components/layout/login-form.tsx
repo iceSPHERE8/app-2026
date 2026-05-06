@@ -37,7 +37,7 @@ export function LoginForm({
         const password = formData.get("password");
 
         try {
-            const res = await fetch("/api/login", {
+            const res = await fetch("/api/admin/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: email, password }), // 后端接收的是 username
