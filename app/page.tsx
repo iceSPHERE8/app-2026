@@ -32,8 +32,6 @@ export default function Home() {
                 <ShowcaseList type={"all-works"} />
                 
             </div>
-
-            {/* <ImageStack /> */}
         </>
     );
 }
