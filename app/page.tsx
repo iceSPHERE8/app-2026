@@ -9,7 +9,7 @@ import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
 export default function Home() {
     return (
         <>
-            <GPGPUFlowParticles count={5000} imageFolder="/images/display/" />
+            <GPGPUFlowParticles count={8192} />
 
             <div className="w-full h-[640px] flex items-end">
                 <div className="flex gap-5 mb-48 ml-8 items-center">

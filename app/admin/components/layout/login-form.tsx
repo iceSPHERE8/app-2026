@@ -1,4 +1,4 @@
-"use client"; // 记得添加 client 指示器
+"use client";
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -13,24 +13,22 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/app/admin/components/ui/field";
 import { Input } from "@/app/admin/components/ui/input";
 
-import Cookies from "js-cookie";
-
-// 1. 定义 Props 接口，扩展自 React.ComponentProps<"div">
 interface LoginFormProps extends React.ComponentProps<"div"> {
     onLoginSuccess: () => void;
 }
 
 export function LoginForm({
     className,
-    onLoginSuccess, // 2. 解构出这个 prop
+    onLoginSuccess,
     ...props
 }: LoginFormProps) {
-    // 3. 添加 loading 和错误处理状态
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsLoading(true);
+        setError("");
 
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email");
@@ -40,22 +38,18 @@ export function LoginForm({
             const res = await fetch("/api/admin/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: email, password }), // 后端接收的是 username
+                body: JSON.stringify({ username: email, password }),
             });
 
             if (res.ok) {
-                // 设置一个名为 'admin_token' 的 cookie
-                // expires: 1 表示有效期 1 天
-                // path: '/' 表示全站有效
-                Cookies.set("admin_token", "true", { expires: 1, path: "/" });
-                
-                onLoginSuccess(); // 登录成功，触发父组件回调
+                // 此时浏览器已自动保存 httpOnly Cookie，无需前端操作
+                onLoginSuccess();
             } else {
                 const data = await res.json();
-                alert(data.message || "登录失败，请检查账号密码");
+                setError(data.message || "登录失败");
             }
-        } catch (error) {
-            alert("网络错误，请稍后再试");
+        } catch (err) {
+            setError("网络连接错误，请检查服务器状态");
         } finally {
             setIsLoading(false);
         }
@@ -65,47 +59,47 @@ export function LoginForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle>Login to your account</CardTitle>
+                    <CardTitle className="text-xl">管理员登录</CardTitle>
                     <CardDescription>
-                        Enter your email below to login to your account
+                        请输入后台管理账号和密码
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {/* 4. 绑定 onSubmit 事件 */}
                     <form onSubmit={handleSubmit}>
-                        <FieldGroup>
+                        <FieldGroup className="gap-4">
                             <Field>
-                                <FieldLabel htmlFor="email">Email</FieldLabel>
+                                <FieldLabel htmlFor="email">账号</FieldLabel>
                                 <Input
                                     id="email"
-                                    name="email" // 必须有 name 属性，formData 才能获取
-                                    type="email"
-                                    placeholder="admin"
+                                    name="email"
+                                    type="text"
+                                    placeholder="Username"
                                     required
+                                    disabled={isLoading}
                                 />
                             </Field>
                             <Field>
-                                <div className="flex items-center">
-                                    <FieldLabel htmlFor="password">
-                                        Password
-                                    </FieldLabel>
-                                </div>
+                                <FieldLabel htmlFor="password">密码</FieldLabel>
                                 <Input
                                     id="password"
-                                    name="password" // 必须有 name 属性
+                                    name="password"
                                     type="password"
                                     required
+                                    disabled={isLoading}
                                 />
                             </Field>
-                            <Field>
-                                <Button
-                                    type="submit"
-                                    className="w-full"
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? "Logging in..." : "Login"}
-                                </Button>
-                            </Field>
+                            {error && (
+                                <p className="text-sm text-red-500 font-medium">
+                                    {error}
+                                </p>
+                            )}
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? "登录中..." : "进入后台"}
+                            </Button>
                         </FieldGroup>
                     </form>
                 </CardContent>

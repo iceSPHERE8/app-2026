@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     try {
         // 1. 身份校验
         const cookieStore = await cookies();
-        if (cookieStore.get('admin_token')?.value !== 'true') {
+        if (cookieStore.get('admin_token')?.value !== 'authorized_session_secret') {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 

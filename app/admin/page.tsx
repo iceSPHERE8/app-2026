@@ -1,49 +1,23 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { LoginForm } from "./components/layout/login-form";
-
-import Cookies from "js-cookie";
+import { cookies } from "next/headers";
 import Dashboard from "./components/layout/dashboard";
+import { LoginFormWrapper } from "./components/layout/login-form-wrapper";
 
-export default function AdminPage() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isChecking, setIsChecking] = useState(true);
+export default async function AdminPage() {
+    // 1. 服务端直接读取 Cookie（这是 httpOnly 的唯一读取方式）
+    const cookieStore = await cookies();
+    const token = cookieStore.get("admin_token")?.value;
 
-    useEffect(() => {
-        // 读取 Cookie
-        const token = Cookies.get("admin_token");
-        if (token === "true") {
-            setIsAuthenticated(true);
-        }
-        setIsChecking(false);
-    }, []);
-
-    const handleLogout = () => {
-        Cookies.remove("admin_token", { path: "/" }); // 移除 Cookie
-        setIsAuthenticated(false);
-    };
-
-    if (isChecking) return null; // 避免闪烁
-
-    // --- 省略 handleImageUpload, saveItem, deleteItem 等逻辑 ---
-
-    // 如果未认证，只显示登录表单
-    if (!isAuthenticated) {
-        return (
-            <div className="min-h-screen flex items-center justify-center p-6 md:p-10">
-                <div className="w-full max-w-sm">
-                    {/* 传入成功后的回调 */}
-                    <LoginForm
-                        onLoginSuccess={() => setIsAuthenticated(true)}
-                    />
-                </div>
-            </div>
-        );
+    // 2. 这里的验证逻辑在服务器运行，刷新时会立即判定
+    if (token === "authorized_session_secret") {
+        return <Dashboard />;
     }
 
-    // 认证后的管理界面
     return (
-        <Dashboard />
+        <div className="min-h-screen flex items-center justify-center p-6 md:p-10">
+            <div className="w-full max-w-sm">
+                {/* 使用一个客户端包装组件来处理登录成功后的刷新 */}
+                <LoginFormWrapper />
+            </div>
+        </div>
     );
 }

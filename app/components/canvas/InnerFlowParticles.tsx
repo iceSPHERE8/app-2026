@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useRef, useMemo, useState } from "react";
+import React, { Suspense, useState, useMemo, useEffect } from "react";
 import * as THREE from "three";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree, Canvas } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { GPUComputationRenderer } from "three/examples/jsm/misc/GPUComputationRenderer.js";
 
+// 2. 修改你的主组件接口
 interface InnerProps {
     count?: number;
-    imageFolder: string;
+    textureUrls: string[]; // 改为直接接收 URL 数组
 }
 
 // --- 着色器代码 ---
@@ -113,7 +114,7 @@ const velocityShader = `
     vec3 nTailPos = vec3(pos.x * noiseScaleTail, pos.y * noiseScaleTail, uTime * 0.2 + idOffset);
     float n1_tail = snoise(nTailPos);
     float n2_tail = snoise(nTailPos + vec3(31.4, 15.8, 7.9));
-    vec2 tailScatteringForce = vec2(n1_tail, n2_tail) * uForceStrength * 0.8;
+    vec2 tailScatteringForce = vec2(n1_tail, n2_tail) * uForceStrength * 1.0;
 
     // *** 力场混合：越靠近中心越整齐，越在边缘越分散 ***
     // 计算分散因子：在中心 2.0 距离内几乎不分散，10.0 以外完全分散
@@ -151,21 +152,21 @@ const velocityShader = `
             
             // 吸引力公式：强度 * 方向 * 衰减因子
             // 强度可以设为 2.0，你可以根据需要调整
-            mouseForce = normalize(toMouse) * forceIdx * 0.5; 
+            mouseForce = normalize(toMouse) * forceIdx * 1.0; 
         }
     }
 
     // 应用力
     vel.xy += mouseForce.xy * uDelta;
-    vel.xy += cohesionForce.xy * uDelta * 0.2; // 应用凝聚力
-    vel.xy += (curlForce * uForceStrength + cohesionForce.xy) * uDelta * 0.1;
+    vel.xy += cohesionForce.xy * uDelta * 0.25; // 应用凝聚力
+    vel.xy += (curlForce * uForceStrength + cohesionForce.xy) * uDelta * 0.15;
     vel.xy += antiClumpForce * uDelta;
     // vel.xy += repelCenterForce.xy * uDelta * 2.0;
     vel.xy += coreFlowForce * uDelta * (1.0 - scatteringFactor); // 核心粒子受整齐流影响
     vel.xy += tailScatteringForce * uDelta * scatteringFactor; // 尾部粒子受随机力影响
 
     // 动态阻尼：核心区域阻尼大（模拟水的粘性），外围阻尼小（更活跃）
-    float currentDamping = mix(0.97, 0.99, scatteringFactor);
+    float currentDamping = mix(0.94, 0.97, scatteringFactor);
     vel.xyz *= currentDamping;
 
     // 软边界排斥 (保持不变，但增加一个强制性)
@@ -241,23 +242,35 @@ const positionShader = `
 
 // --- 组件部分 ---
 
+interface Item {
+    mainMedia: {
+        url: string;
+    };
+}
+
 const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
-    count = 8192,
-    imageFolder,
+    count = 128,
+    textureUrls,
 }) => {
     const { gl, viewport } = useThree();
     const size = Math.ceil(Math.sqrt(count));
-    
-    const particleTextures =useTexture([
-        `${imageFolder}1.png`,
-        `${imageFolder}2.png`,
-    ]);
+
+    const particleTextures = useTexture(textureUrls);
+    useEffect(() => {
+        particleTextures.forEach((tex) => {
+            // 重要：确保贴图使用正确的颜色空间
+            // 否则图片颜色在渲染时会显得灰白、不鲜艳
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.needsUpdate = true;
+        });
+    }, [particleTextures]);
 
     const textureIndexAttribute = useMemo(() => {
         const indices = new Float32Array(count);
         for (let i = 0; i < count; i++) {
             indices[i] = Math.floor(Math.random() * particleTextures.length);
         }
+        console.log("Current Count:", count)
         return new THREE.InstancedBufferAttribute(indices, 1, false);
     }, [count, particleTextures.length]);
 
@@ -273,7 +286,7 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
         const velData = dtVelocity.image.data as Float32Array;
 
         for (let i = 0; i < posData.length; i += 4) {
-            posData[i + 0] = (Math.random() - 0.5) * 15.0;
+            posData[i + 0] = (Math.random() - 0.5) * 30.0;
             posData[i + 1] = (Math.random() - 0.5) * 15.0;
             posData[i + 2] = 0;
             posData[i + 3] = Math.random() * 100.0;
@@ -309,13 +322,14 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
 
         gpu.init();
         return { gpuCompute: gpu, variables: { posVar, velVar } };
-    }, [size, gl]);
+    }, [size, gl, count]);
 
     const material = useMemo(() => {
         const mat = new THREE.MeshBasicMaterial({
             transparent: true,
             depthTest: false,
-            alphaTest: 0.05,
+            depthWrite: false, // 建议加上，防止半透明遮挡冲突
+            alphaTest: 0.2, // 提高阈值，过滤掉边缘虚化的部分
         });
 
         mat.onBeforeCompile = (shader) => {
@@ -329,7 +343,8 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
 
             // 2. Vertex Shader 修复
             // 将声明放在 main 之前
-            shader.vertexShader = `
+            shader.vertexShader =
+                `
                 attribute float textureIndex;
                 varying float vTexIndex;
                 varying vec2 vInstanceUv; // 我们自己传 UV，避免和内置 vUv 冲突
@@ -352,11 +367,12 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
                 float vScale = posSample.w;
                 // 这里的 transformed 是 Three.js 内部变量
                 transformed = position * vScale + posSample.xyz;
-                `
+                `,
             );
 
             // 3. Fragment Shader 修复
-            shader.fragmentShader = `
+            shader.fragmentShader =
+                `
                 varying float vTexIndex;
                 varying vec2 vInstanceUv;
                 uniform float uTextureCount;
@@ -369,14 +385,18 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
                 vec4 texColor = vec4(1.0);
                 float idx = floor(vTexIndex + 0.5);
 
-                ${particleTextures.map((_, i) => `
+                ${particleTextures
+                    .map(
+                        (_, i) => `
                     if (abs(idx - ${i}.0) < 0.1) {
                         texColor = texture2D(uTexture${i}, vInstanceUv);
                     }
-                `).join("\n")}
+                `,
+                    )
+                    .join("\n")}
 
                 diffuseColor *= texColor;
-                `
+                `,
             );
 
             mat.userData.shader = shader;
@@ -426,7 +446,7 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
             </mesh>
 
             <instancedMesh args={[null!, null!, count]} frustumCulled={false}>
-                <planeGeometry args={[0.64, 0.64]}>
+                <planeGeometry args={[0.32, 0.32]}>
                     {/* 添加 per-instance 属性 */}
                     <instancedBufferAttribute
                         attach="attributes-textureIndex" // 注意这里，Shader 里对应的就是 textureIndex
