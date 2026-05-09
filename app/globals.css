@@ -20,9 +20,18 @@
   font-display: block;
 }
 
+@font-face {
+  font-family: "agrandir";
+  src: url("/fonts/Agrandir-GrandHeavy.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+
 @theme {
   /* 确保 sarasamono 排在最前面 */
   --font-sans: "sarasamono", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "agrandir", sans-serif;
 }
 
 /* 强制所有元素默认使用这个变量 */
