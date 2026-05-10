@@ -5,7 +5,7 @@ import path from 'path';
 
 // 1. 设置限制常量
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.mp4', '.webm'];
+const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', ".glb", '.gif', '.webp', '.mp4', '.webm'];
 
 export async function POST(request: Request) {
     try {

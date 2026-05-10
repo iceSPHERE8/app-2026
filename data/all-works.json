@@ -1,5 +1,62 @@
 [
   {
+    "id": "1778431602260",
+    "createdAt": "2026-05-10T16:46:42.260Z",
+    "title": "test3",
+    "description": "",
+    "detailLink": "",
+    "mainMedia": {
+      "url": "/uploads/1778431598003.jpg",
+      "type": "image",
+      "aspectRatio": 1.4444444444444444
+    },
+    "coverUrl": "",
+    "coverAspectRatio": 1,
+    "previewVideoUrl": ""
+  },
+  {
+    "id": "1778431323815",
+    "createdAt": "2026-05-10T16:42:03.815Z",
+    "title": "another",
+    "description": "",
+    "detailLink": "",
+    "mainMedia": {
+      "url": "/uploads/1778431319234.jpg",
+      "type": "image",
+      "aspectRatio": 1
+    },
+    "coverUrl": "",
+    "coverAspectRatio": 1,
+    "previewVideoUrl": ""
+  },
+  {
+    "id": "1778429839561",
+    "createdAt": "2026-05-10T16:17:19.561Z",
+    "title": "test cover",
+    "description": "",
+    "detailLink": "",
+    "mainMedia": {
+      "url": "/uploads/1778429832918.jpg",
+      "type": "image"
+    },
+    "coverUrl": "",
+    "previewVideoUrl": ""
+  },
+  {
+    "id": "1778355378183",
+    "createdAt": "2026-05-09T19:36:18.183Z",
+    "title": "suzane",
+    "description": "this is a model preview test, have fun!",
+    "detailLink": "",
+    "mainMedia": {
+      "url": "/uploads/1778355575087.glb",
+      "type": "model"
+    },
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "updatedAt": "2026-05-09T19:55:57.480Z"
+  },
+  {
     "id": "1778172565104",
     "createdAt": "2026-05-07T16:49:25.104Z",
     "title": "test",

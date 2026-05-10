@@ -16,7 +16,7 @@
   font-family: "sarasamono";
   src: url("/fonts/SarasaMonoSC-Bold.woff2") format("woff2");
   font-weight: 700;
-  font-style: normal;
+  font-style: bold;
   font-display: block;
 }
 
@@ -28,10 +28,20 @@
   font-display: block;
 }
 
+@font-face {
+  font-family: "agrandir-light";
+  src: url("/fonts/Agrandir-GrandLight.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
 @theme {
   /* 确保 sarasamono 排在最前面 */
   --font-sans: "sarasamono", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "agrandir", sans-serif;
+  --font-table: "agrandir-light", sans-serif;
+  --background: #DBDBDB;
 }
 
 /* 强制所有元素默认使用这个变量 */

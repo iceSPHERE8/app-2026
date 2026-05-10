@@ -1,69 +1,90 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useMemo, useState, useEffect } from "react";
 
-export default function Header() {
-    const pathname = usePathname();
+// 定义组件接收的属性接口
+interface HeaderProps {
+    activeType: "all-works" | "tool-lab";
+    onTypeChange: (type: "all-works" | "tool-lab") => void;
+}
 
-    // 判断是否为当前页面
-    const isActive = (href: string) => {
-        if (href === "/") return pathname === "/";
-        return pathname.startsWith(href);
-    };
+export default function Header({ activeType, onTypeChange }: HeaderProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // 将 href 改为逻辑标识 type
+    const navItems: { name: string; type: "all-works" | "tool-lab" }[] = [
+        { name: "All Works", type: "all-works" },
+        { name: "Tool Lab", type: "tool-lab" },
+    ];
+
+    const offsets = useMemo(() => {
+        if (typeof window === "undefined" || !mounted) {
+            return navItems.map(() => ({
+                height: "40px",
+                backgroundColor: "rgb(200, 200, 200)"
+            }));
+        }
+
+        return navItems.map(() => {
+            const grayValue = Math.floor(Math.random() * 30 + 170);
+            return {
+                height: `${Math.floor(Math.random() * 4 + 38)}px`,
+                backgroundColor: `rgb(${grayValue}, ${grayValue}, ${grayValue})`
+            };
+        });
+    }, [mounted]);
 
     return (
-        <>
-            <header>
-                <div className="h-18 flex items-end justify-between px-8">
-                    <div className="space-y-0">
-                        <nav className="text-[1.25rem] flex list-none gap-x-8">
-                            <li>
-                                <Link 
-                                    href="/"
-                                    className={`relative pb-3 pt-2 transition-all duration-300
-                                        after:absolute after:left-0 after:-top-1 after:h-1 
-                                        after:bg-black after:transition-transform after:origin-left
-                                        ${isActive("/") 
-                                            ? "after:w-full" 
-                                            : "after:w-0 hover:after:w-full"}`}
-                                >
-                                    All Works
-                                </Link>
-                            </li>
+        <header className="px-12 mt-32 relative z-50">
+            <nav className="flex list-none items-end">
+                {navItems.map((item, index) => {
+                    // 使用传入的 activeType 判断当前是否激活
+                    const active = activeType === item.type;
 
-                            <li>
-                                <Link 
-                                    href="/motion-graphics"
-                                    className={`relative pb-3 pt-2 transition-all duration-300
-                                        after:absolute after:left-0 after:-top-1 after:h-1 
-                                        after:bg-black after:transition-transform after:origin-left
-                                        ${isActive("/motion-graphics") 
-                                            ? "after:w-full" 
-                                            : "after:w-0 hover:after:w-full"}`}
-                                >
-                                    Tool lab
-                                </Link>
-                            </li>
-
-                            <li>
-                                <Link 
-                                    href="/contact"
-                                    className={`relative pb-3 pt-2 transition-all duration-300
-                                        after:absolute after:left-0 after:-top-1 after:h-1 
-                                        after:bg-black after:transition-transform after:origin-left
-                                        ${isActive("/contact") 
-                                            ? "after:w-full" 
-                                            : "after:w-0 hover:after:w-full"}`}
-                                >
-                                    Contact / Inquiry
-                                </Link>
-                            </li>
-                        </nav>
-                    </div>
-                    {/* <div className="text-4xl">iceSphere8@outlook.com</div> */}
-                </div>
-            </header>
-        </>
+                    return (
+                        <li
+                            key={item.type}
+                            style={{
+                                marginLeft: index === 0 ? "0px" : "-15px",
+                                zIndex: active ? 30 : 20 - index,
+                            }}
+                        >
+                            {/* 将 Link 替换为 button，点击触发状态切换 */}
+                            <button
+                                onClick={() => onTypeChange(item.type)}
+                                className={`
+                                    relative pl-8 pr-8 pt-2 pb-1 text-md uppercase font-bold
+                                    flex items-center transition-all duration-300
+                                    rounded-tl-xl rounded-tr-xl
+                                    [clip-path:polygon(0%_0%,80%_0%,100%_100%,0%_100%)]
+                                    ${
+                                        active
+                                            ? "text-black h-12 translate-y-[1px]"
+                                            : "text-neutral-600 hover:bg-neutral-300 hover:text-black"
+                                    }
+                                `}
+                                style={{
+                                    height: active
+                                        ? "48px"
+                                        : mounted ? offsets[index].height : "40px",
+                                    minWidth: "180px",
+                                    backgroundColor: active 
+                                        ? "#EAEAEA" 
+                                        : (mounted ? offsets[index].backgroundColor : "#BCBCBC"),
+                                }}
+                            >
+                                <span className="relative left-[-4px]">
+                                    {item.name}
+                                </span>
+                            </button>
+                        </li>
+                    );
+                })}
+            </nav>
+        </header>
     );
 }

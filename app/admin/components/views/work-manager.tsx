@@ -1,7 +1,7 @@
 // app/admin/views/work-manager.tsx
 "use client";
 
-import React, { useState, useEffect, useRef,useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
     Card,
     CardContent,
@@ -47,12 +47,31 @@ export default function WorkManager({
         title: "",
         description: "",
         detailLink: "",
-        // All Works 使用：主媒体（图/影/模）
-        mainMedia: { url: "", type: "image" as "image" | "video" | "model" },
-        // Tool Lab 使用：封面 + 可选预览视频
+        mainMedia: {
+            url: "",
+            type: "image" as "image" | "video" | "model",
+            aspectRatio: 1, // 新增：记录比例 (height / width)
+        },
         coverUrl: "",
+        coverAspectRatio: 1, // 新增：如果是 Tool Lab 模式，记录封面的比例
         previewVideoUrl: "",
     });
+
+    const getImageAspectRatio = (file: File): Promise<number> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // 计算比例：高 / 宽 (用于之前我们讨论的 padding-top 布局)
+                    const ratio = img.height / img.width;
+                    resolve(ratio);
+                };
+                img.src = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        });
+    };
 
     const fetchItems = async () => {
         const res = await fetch(`/api/admin/get-data?type=${type}`);
@@ -69,13 +88,17 @@ export default function WorkManager({
             title: item.title,
             description: item.description,
             detailLink: item.detailLink || "",
-            mainMedia: item.mainMedia || { url: "", type: "image" },
+            mainMedia: {
+                url: item.mainMedia?.url || "",
+                type: item.mainMedia?.type || "image",
+                aspectRatio: item.mainMedia?.aspectRatio || 1, // 如果旧数据没比例，默认给 1
+            },
             coverUrl: item.coverUrl || "",
+            coverAspectRatio: item.coverAspectRatio || 1, // 同样，给个默认值 1
             previewVideoUrl: item.previewVideoUrl || "",
         });
         setIsFormOpen(true);
     };
-
     const closeForm = () => {
         setIsFormOpen(false);
         setEditingId(null);
@@ -83,8 +106,13 @@ export default function WorkManager({
             title: "",
             description: "",
             detailLink: "",
-            mainMedia: { url: "", type: "image" },
+            mainMedia: {
+                url: "",
+                type: "image",
+                aspectRatio: 1, // 补充缺失的默认比例
+            },
             coverUrl: "",
+            coverAspectRatio: 1, // 补充缺失的默认比例
             previewVideoUrl: "",
         });
     };
@@ -137,8 +165,15 @@ export default function WorkManager({
     ) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setUploading(field);
 
+        // --- 新增：如果是图片，先计算比例 ---
+        let calculatedRatio = 1;
+        if (file.type.startsWith("image/")) {
+            calculatedRatio = await getImageAspectRatio(file);
+        }
+        // --------------------------------
+
+        setUploading(field);
         const body = new FormData();
         body.append("file", file);
 
@@ -156,12 +191,21 @@ export default function WorkManager({
                         mediaType = "video";
                     if (file.name.match(/\.(glb|gltf|obj)$/i))
                         mediaType = "model";
+
                     setFormData((prev) => ({
                         ...prev,
-                        mainMedia: { url: result.url, type: mediaType },
+                        mainMedia: {
+                            url: result.url,
+                            type: mediaType,
+                            aspectRatio: calculatedRatio, // 记录主媒体比例
+                        },
                     }));
                 } else if (field === "cover") {
-                    setFormData((prev) => ({ ...prev, coverUrl: result.url }));
+                    setFormData((prev) => ({
+                        ...prev,
+                        coverUrl: result.url,
+                        coverAspectRatio: calculatedRatio, // 记录封面比例
+                    }));
                 } else if (field === "video") {
                     setFormData((prev) => ({
                         ...prev,
