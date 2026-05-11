@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import bcrypt from "bcryptjs";
+import crypto from "crypto"; // 使用内置加密模块
 
 export async function POST(request: Request) {
     try {
         const { username, password } = await request.json();
 
         const envUsername = process.env.ADMIN_USERNAME;
-        const envPasswordHash = process.env.ADMIN_PASSWORD_HASH;      
+        const envPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+
+        // 调试打印：检查读取到的变量是否完整
+        // console.log("Input:", username);
+        // console.log("Env variable from server:", envPasswordHash);
 
         // 1. 验证用户名
         if (!envUsername || username !== envUsername) {
@@ -17,18 +21,22 @@ export async function POST(request: Request) {
             );
         }
 
-        // 2. 使用 bcrypt 比对明文密码与环境变量中的 Hash 值
-        const isPasswordMatch = await bcrypt.compare(password, envPasswordHash || "");
+        // 2. 生成输入密码的 SHA-256 哈希值
+        const inputHash = crypto
+            .createHash("sha256")
+            .update(password)
+            .digest("hex");
 
-        if (isPasswordMatch) {
-            // 3. 登录成功，设置 httpOnly Cookie
+        // 3. 比对两个十六进制字符串
+        // 使用 .toLowerCase() 确保大小写不敏感，防止手动输入错误
+        if (inputHash === envPasswordHash?.toLowerCase()) {
             const cookieStore = await cookies();
             cookieStore.set("admin_token", "authorized_session_secret", {
-                httpOnly: true, // 防止前端 JS 读取，防御 XSS
-                secure: process.env.NODE_ENV === "production", // 生产环境仅限 HTTPS
-                sameSite: "strict", // 防御 CSRF
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
                 path: "/",
-                maxAge: 60 * 60 * 24, // 有效期 1 天
+                maxAge: 60 * 60 * 24,
             });
 
             return NextResponse.json({ success: true });
