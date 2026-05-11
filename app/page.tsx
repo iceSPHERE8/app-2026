@@ -21,7 +21,7 @@ export default function Home() {
             <div className="relative w-full h-[640px] mt-2">
                 <GPGPUFlowParticles count={8192} />
 
-                <div className="w-full aspect-16/8.5 max-h-160 bg-[#DBDBDB] px-[4%] flex flex-col justify-end overflow-hidden @container">
+                <div className="w-full aspect-16/8.5 max-h-160 bg-[#DBDBDB] px-12 flex flex-col justify-end overflow-hidden @container">
                     <div className="w-full gap-[2%] grid grid-cols-[15%_2fr_1fr] items-start justify-between">
                         {/* Logo Icon */}
                         <div className="relative w-full aspect-[3.45/1]">
@@ -170,7 +170,7 @@ export default function Home() {
             </div>
             <Header activeType={viewType} onTypeChange={setViewType} />
 
-            <div className="mx-12 bg-[#EAEAEA] px-4 py-2">
+            <div className="mx-12 bg-[#EAEAEA] p-8">
                 {/* 【修改】将 type 属性绑定到 state 变量 viewType */}
                 <ShowcaseList type={viewType} />
             </div>

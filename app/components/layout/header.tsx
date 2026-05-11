@@ -63,13 +63,13 @@ export default function Header({ activeType, onTypeChange }: HeaderProps) {
                                     [clip-path:polygon(0%_0%,80%_0%,100%_100%,0%_100%)]
                                     ${
                                         active
-                                            ? "text-black h-12 translate-y-[1px]"
+                                            ? "text-black translate-y-[1px]"
                                             : "text-neutral-600 hover:bg-neutral-300 hover:text-black"
                                     }
                                 `}
                                 style={{
                                     height: active
-                                        ? "48px"
+                                        ? "40px"
                                         : mounted ? offsets[index].height : "40px",
                                     minWidth: "180px",
                                     backgroundColor: active 
