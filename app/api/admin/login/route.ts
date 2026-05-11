@@ -10,8 +10,8 @@ export async function POST(request: Request) {
         const envPasswordHash = process.env.ADMIN_PASSWORD_HASH;
 
         // 调试打印：检查读取到的变量是否完整
-        // console.log("Input:", username);
-        // console.log("Env variable from server:", envPasswordHash);
+        console.log("Input:", username);
+        console.log("Env variable from server:", envPasswordHash);
 
         // 1. 验证用户名
         if (!envUsername || username !== envUsername) {
