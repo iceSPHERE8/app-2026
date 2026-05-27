@@ -41,7 +41,7 @@
   --font-sans: "sarasamono", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "agrandir", sans-serif;
   --font-table: "agrandir-light", sans-serif;
-  --background: #DBDBDB;
+  --background: #000000;
 }
 
 /* 强制所有元素默认使用这个变量 */

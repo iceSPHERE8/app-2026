@@ -11,6 +11,9 @@ import ShowcaseList from "./components/ShowcaseList";
 import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
 import PixelVideoProps from "./components/canvas/PixelVideoProps";
 
+import CustomIcon from "./components/icons/CustomIcon";
+import TextIcon from "./components/icons/TextIcon";
+
 export default function Home() {
     const [viewType, setViewType] = useState<"all-works" | "tool-lab">(
         "all-works",
@@ -18,24 +21,44 @@ export default function Home() {
 
     return (
         <div className="">
-            <div className="relative w-full h-[640px] mt-2">
-                <GPGPUFlowParticles count={8192} />
+            <div className="relative w-full h-[960px] mt-2 flex flex-col justify-between">
+                {/* <GPGPUFlowParticles count={8192} /> */}
+                <div className="w-full flex justify-center">
+                    <TextIcon className="w-48 h-16 text-[#eaeaea]" />
+                </div>
 
-                <div className="w-full aspect-16/8.5 max-h-160 bg-[#DBDBDB] px-12 flex flex-col justify-end overflow-hidden @container">
-                    <div className="w-full gap-[2%] grid grid-cols-[15%_2fr_1fr] items-start justify-between">
-                        {/* Logo Icon */}
-                        <div className="relative w-full aspect-[3.45/1]">
-                            <Image
-                                src={"/images/logo-icon.png"}
-                                fill
-                                alt="badbug.studio"
-                                sizes="20vw"
-                                priority
-                                className="object-contain"
-                            />
-                        </div>
+                <div className="w-full flex flex-col items-center justify-center text-[#eaeaea]">
+                    <CustomIcon className="w-24 h-16" />
+                    <h1 className="font-heading text-[12px] leading-none text-center pt-2 max-w-[320px]">
+                        From motion that stings to visuals that linger like
+                        venom.
+                    </h1>
+                    <section
+                        aria-label="About Badbug"
+                    >
+                        <p className="text-[0.3cqw] pt-2 max-w-180 leading-none text-center overflow-hidden">
+                            In the modern web ecosystem, Badbug functions as a
+                            precision-engineered anomaly, bridging 3D motion
+                            design and procedural generative art. We leverage
+                            Three.js, React Three Fiber, and GLSL shaders to
+                            push the limits of interactive visuals, blending
+                            organic chaos with mathematical rigor through GPGPU
+                            simulations and physics-based animation. From the
+                            node-based complexity of Houdini and Redshift to the
+                            seamless integration of TypeScript and Next.js,
+                            every project is a study in technical art. We don't
+                            just render images; we architect digital behaviors.
+                            Whether exploring 16-bit pixel art or real-time
+                            creative coding, our work thrives in the microscopic
+                            details—a visual infestation engineering the sting
+                            of the digital media designer's new frontier.
+                        </p>
+                    </section>
+                </div>
 
-                        {/* Center Text Section */}
+                {/* <div className="w-full text-[#eaeaea] aspect-16/8.5 max-h-160 bg-[#000000] px-12 flex flex-col justify-end overflow-hidden @container">
+                    <div className="w-full gap-[2%] grid grid-cols-[15%_2fr_1fr] items-start justify-between">                  
+                        
                         <div className="flex items-center w-10/12 h-full overflow-hidden">
                             <div className="w-full">
                                 <Image
@@ -79,14 +102,6 @@ export default function Home() {
 
                         <div className="w-full gap-[4%] flex items-start justify-between pl-[8%]">
                             <div className="flex flex-col w-full overflow-hidden">
-                                <Image
-                                    src={"/images/homepage-icon-1.png"}
-                                    width={674}
-                                    height={144}
-                                    priority
-                                    className="w-full h-auto"
-                                    alt="icon"
-                                />
                                 <section
                                     aria-label="About Badbug"
                                     className="w-full mt-[5%] overflow-hidden"
@@ -101,14 +116,6 @@ export default function Home() {
                                 </section>
                             </div>
                             <div className="flex flex-col w-full overflow-hidden">
-                                <Image
-                                    src={"/images/homepage-icon-2.png"}
-                                    width={674}
-                                    height={144}
-                                    priority
-                                    className="w-full h-auto"
-                                    alt="icon"
-                                />
                                 <section
                                     aria-label="About Badbug"
                                     className="w-full mt-[5%] overflow-hidden"
@@ -123,14 +130,6 @@ export default function Home() {
                                 </section>
                             </div>
                             <div className="flex flex-col w-full overflow-hidden">
-                                <Image
-                                    src={"/images/homepage-icon-3.png"}
-                                    width={674}
-                                    height={144}
-                                    priority
-                                    className="w-full h-auto"
-                                    alt="icon"
-                                />
                                 <section
                                     aria-label="About Badbug"
                                     className="w-full mt-[5%] overflow-hidden"
@@ -153,9 +152,9 @@ export default function Home() {
                             attention.
                         </h1>
                     </div>
-                </div>
+                </div> */}
 
-                <div className="w-full h-16 mt-2 px-12">
+                {/* <div className="w-full h-16 mt-2 px-12">
                     <Canvas camera={{ position: [0, 0, 8] }}>
                         <PixelVideoProps
                             src="/b0230f80072bf4bad0403d83e6a25825_t2.mp4"
@@ -166,7 +165,7 @@ export default function Home() {
                             pixelScale={1.0} // 如果觉得点与点之间空隙太大，可以用这个放大单个点
                         />
                     </Canvas>
-                </div>
+                </div> */}
             </div>
             <Header activeType={viewType} onTypeChange={setViewType} />
 
