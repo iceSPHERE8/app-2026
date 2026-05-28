@@ -21,13 +21,13 @@ export default function Home() {
 
     return (
         <div className="">
-            <div className="relative w-full h-[960px] mt-2 flex flex-col justify-between">
+            <div className="relative w-full min-h-dvh flex flex-col justify-between">
                 {/* <GPGPUFlowParticles count={8192} /> */}
                 <div className="w-full flex justify-center">
-                    <TextIcon className="w-48 h-16 text-[#eaeaea]" />
+                    <TextIcon className="w-64 pt-8 text-[#eaeaea]" />
                 </div>
 
-                <div className="w-full flex flex-col items-center justify-center text-[#eaeaea]">
+                <div className="w-full flex flex-col pb-8 items-center justify-center text-[#eaeaea]">
                     <CustomIcon className="w-24 h-16" />
                     <h1 className="font-heading text-[12px] leading-none text-center pt-2 max-w-[320px]">
                         From motion that stings to visuals that linger like
@@ -58,48 +58,6 @@ export default function Home() {
 
                 {/* <div className="w-full text-[#eaeaea] aspect-16/8.5 max-h-160 bg-[#000000] px-12 flex flex-col justify-end overflow-hidden @container">
                     <div className="w-full gap-[2%] grid grid-cols-[15%_2fr_1fr] items-start justify-between">                  
-                        
-                        <div className="flex items-center w-10/12 h-full overflow-hidden">
-                            <div className="w-full">
-                                <Image
-                                    src={"/images/logo-text.png"}
-                                    width={3723}
-                                    height={142}
-                                    priority
-                                    className="w-full h-auto"
-                                    alt="badbug.studio"
-                                />
-                                <section
-                                    aria-label="About Badbug"
-                                    className="w-full mt-[1%] max-h-[60%] pt-3 overflow-hidden"
-                                >
-                                    <p className="text-[0.3cqw] leading-none text-justify overflow-hidden">
-                                        In the modern web ecosystem, Badbug
-                                        functions as a precision-engineered
-                                        anomaly, bridging 3D motion design and
-                                        procedural generative art. We leverage
-                                        Three.js, React Three Fiber, and GLSL
-                                        shaders to push the limits of
-                                        interactive visuals, blending organic
-                                        chaos with mathematical rigor through
-                                        GPGPU simulations and physics-based
-                                        animation. From the node-based
-                                        complexity of Houdini and Redshift to
-                                        the seamless integration of TypeScript
-                                        and Next.js, every project is a study in
-                                        technical art. We don't just render
-                                        images; we architect digital behaviors.
-                                        Whether exploring 16-bit pixel art or
-                                        real-time creative coding, our work
-                                        thrives in the microscopic details—a
-                                        visual infestation engineering the sting
-                                        of the digital media designer's new
-                                        frontier.
-                                    </p>
-                                </section>
-                            </div>
-                        </div>
-
                         <div className="w-full gap-[4%] flex items-start justify-between pl-[8%]">
                             <div className="flex flex-col w-full overflow-hidden">
                                 <section
@@ -145,13 +103,6 @@ export default function Home() {
                             </div>
                         </div>
                     </div>
-                    <div className="w-full">
-                        <h1 className="font-heading text-[1.375cqw] leading-none text-justify pt-2">
-                            From motion that stings to visuals that linger like
-                            venom — we create work that doesn’t ask for
-                            attention.
-                        </h1>
-                    </div>
                 </div> */}
 
                 {/* <div className="w-full h-16 mt-2 px-12">
@@ -167,12 +118,11 @@ export default function Home() {
                     </Canvas>
                 </div> */}
             </div>
-            <Header activeType={viewType} onTypeChange={setViewType} />
+            {/* <Header activeType={viewType} onTypeChange={setViewType} /> */}
 
-            <div className="mx-12 bg-[#EAEAEA] p-8">
-                {/* 【修改】将 type 属性绑定到 state 变量 viewType */}
+            {/* <div className="mx-12 bg-[#EAEAEA] p-8">
                 <ShowcaseList type={viewType} />
-            </div>
+            </div> */}
         </div>
     );
 }
