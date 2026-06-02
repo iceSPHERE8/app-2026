@@ -1,89 +1,62 @@
-"use client";
+import Link from "next/link";
+// 请根据你的实际文件路径调整引入
+import TextIcon from "../icons/TextIcon";
 
-import { useMemo, useState, useEffect } from "react";
-
-// 定义组件接收的属性接口
-interface HeaderProps {
-    activeType: "all-works" | "tool-lab";
-    onTypeChange: (type: "all-works" | "tool-lab") => void;
+interface NavItem {
+    name: string;
+    href: string;
 }
 
-export default function Header({ activeType, onTypeChange }: HeaderProps) {
-    const [mounted, setMounted] = useState(false);
+const NAV_ITEMS: NavItem[] = [
+    { name: "all works", href: "/works" },
+    { name: "tool lab", href: "/tools" },
+    { name: "projects", href: "/projects" },
+];
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    // 将 href 改为逻辑标识 type
-    const navItems: { name: string; type: "all-works" | "tool-lab" }[] = [
-        { name: "All Works", type: "all-works" },
-        { name: "Tool Lab", type: "tool-lab" },
-    ];
-
-    const offsets = useMemo(() => {
-        if (typeof window === "undefined" || !mounted) {
-            return navItems.map(() => ({
-                height: "40px",
-                backgroundColor: "rgb(200, 200, 200)"
-            }));
-        }
-
-        return navItems.map(() => {
-            const grayValue = Math.floor(Math.random() * 30 + 170);
-            return {
-                height: `${Math.floor(Math.random() * 4 + 38)}px`,
-                backgroundColor: `rgb(${grayValue}, ${grayValue}, ${grayValue})`
-            };
-        });
-    }, [mounted]);
-
+export default function Header() {
     return (
-        <header className="px-12 mt-32 relative z-50">
-            <nav className="flex list-none items-end">
-                {navItems.map((item, index) => {
-                    // 使用传入的 activeType 判断当前是否激活
-                    const active = activeType === item.type;
+        <header className="relative w-full flex items-center justify-center pt-8 px-8">
+            <div>
+                <TextIcon className="w-64 text-[#eaeaea]" />
+            </div>
 
-                    return (
-                        <li
-                            key={item.type}
-                            style={{
-                                marginLeft: index === 0 ? "0px" : "-15px",
-                                zIndex: active ? 30 : 20 - index,
-                            }}
-                        >
-                            {/* 将 Link 替换为 button，点击触发状态切换 */}
-                            <button
-                                onClick={() => onTypeChange(item.type)}
-                                className={`
-                                    relative pl-8 pr-8 pt-2 pb-1 text-md uppercase font-bold
-                                    flex items-center transition-all duration-300
-                                    rounded-tl-xl rounded-tr-xl
-                                    [clip-path:polygon(0%_0%,80%_0%,100%_100%,0%_100%)]
-                                    ${
-                                        active
-                                            ? "text-black translate-y-[1px]"
-                                            : "text-neutral-600 hover:bg-neutral-300 hover:text-black"
-                                    }
-                                `}
-                                style={{
-                                    height: active
-                                        ? "40px"
-                                        : mounted ? offsets[index].height : "40px",
-                                    minWidth: "180px",
-                                    backgroundColor: active 
-                                        ? "#EAEAEA" 
-                                        : (mounted ? offsets[index].backgroundColor : "#BCBCBC"),
-                                }}
-                            >
-                                <span className="relative left-[-4px]">
-                                    {item.name}
-                                </span>
-                            </button>
-                        </li>
-                    );
-                })}
+            <nav className="absolute right-8 flex items-center gap-4">
+                {NAV_ITEMS.map((item) => (
+                    <Link
+                        key={item.name}
+                        href={item.href}
+                        // 拟物化核心样式
+                        className="
+                relative group flex items-center justify-center
+                px-2 pt-1 rounded-full border border-[#a1a1a1]
+                text-[12px] leading-none font-table font-black uppercase transition-all ease-in-out duration-150
+                
+                /* 1. 银白金属质感渐变 */
+                bg-gradient-to-b from-[#ffffff] via-[#e6e6e6] to-[#ababab]
+                
+                /* 2. 深色雕刻文字 + 纯白底边文字阴影 (模拟凹陷效果) */
+                text-[#4a4a4a]
+                [text-shadow:0_1px_0_rgba(255,255,255,0.8)]
+                
+                /* 3. 多重物理阴影: 
+                   inset_0_1.5px_0_#fff (顶部的犀利反光)
+                   0_2px_4px_rgba(0,0,0,0.3) (底部的物理投影) 
+                */
+                shadow-[inset_0_1.5px_0_rgba(255,255,255,1),0_2px_4px_rgba(0,0,0,0.3)]
+                
+                /* 4. 悬停状态: 稍微提亮 */
+                hover:from-[#ffffff] hover:via-[#f0f0f0] hover:to-[#e0e0e0]
+                hover:shadow-[inset_0_1.5px_0_rgba(255,255,255,1),0_3px_6px_rgba(0,0,0,0.4)]
+                
+                /* 5. 按下状态: 物理下压，渐变翻转，内阴影加深 */
+                active:translate-y-[2px]
+                active:from-[#c4c4c4] active:via-[#d4d4d4] active:to-[#e6e6e6]
+                active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.3),0_0px_0px_rgba(0,0,0,0)]
+            "
+                    >
+                        {item.name}
+                    </Link>
+                ))}
             </nav>
         </header>
     );

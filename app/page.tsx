@@ -7,6 +7,7 @@ import ImageStack from "./components/ImageStack";
 import { Canvas } from "@react-three/fiber";
 
 import Header from "./components/layout/header";
+import WaterfallGallery from "./components/WaterfallGallery";
 import ShowcaseList from "./components/ShowcaseList";
 import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
 import PixelVideoProps from "./components/canvas/PixelVideoProps";
@@ -22,10 +23,11 @@ export default function Home() {
     return (
         <div className="">
             <div className="relative w-full min-h-dvh flex flex-col justify-between">
-                {/* <GPGPUFlowParticles count={8192} /> */}
-                <div className="w-full flex justify-center">
-                    <TextIcon className="w-64 pt-8 text-[#eaeaea]" />
+                
+                <div className="w-full">
+                    <Header />
                 </div>
+                {/* <GPGPUFlowParticles count={8192} /> */}
 
                 <div className="w-full flex flex-col pb-8 items-center justify-center text-[#eaeaea]">
                     <CustomIcon className="w-24 h-16" />
@@ -33,10 +35,8 @@ export default function Home() {
                         From motion that stings to visuals that linger like
                         venom.
                     </h1>
-                    <section
-                        aria-label="About Badbug"
-                    >
-                        <p className="text-[0.3cqw] pt-2 max-w-180 leading-none text-center overflow-hidden">
+                    <section aria-label="About Badbug">
+                        <p className="text-[5px] pt-2 max-w-90 md:max-w-180 leading-none text-center overflow-hidden">
                             In the modern web ecosystem, Badbug functions as a
                             precision-engineered anomaly, bridging 3D motion
                             design and procedural generative art. We leverage
@@ -55,74 +55,14 @@ export default function Home() {
                         </p>
                     </section>
                 </div>
-
-                {/* <div className="w-full text-[#eaeaea] aspect-16/8.5 max-h-160 bg-[#000000] px-12 flex flex-col justify-end overflow-hidden @container">
-                    <div className="w-full gap-[2%] grid grid-cols-[15%_2fr_1fr] items-start justify-between">                  
-                        <div className="w-full gap-[4%] flex items-start justify-between pl-[8%]">
-                            <div className="flex flex-col w-full overflow-hidden">
-                                <section
-                                    aria-label="About Badbug"
-                                    className="w-full mt-[5%] overflow-hidden"
-                                >
-                                    <p className="text-[0.3cqw] leading-none overflow-hidden">
-                                        Autonomous Motion. Engineering GLSL
-                                        shaders and GPGPU simulations via
-                                        Houdini. We craft procedural systems
-                                        where algorithmic logic creates
-                                        relentless, evolving digital patterns.
-                                    </p>
-                                </section>
-                            </div>
-                            <div className="flex flex-col w-full overflow-hidden">
-                                <section
-                                    aria-label="About Badbug"
-                                    className="w-full mt-[5%] overflow-hidden"
-                                >
-                                    <p className="text-[0.3cqw] leading-none overflow-hidden">
-                                        Cinematic Impact. High-fidelity 3D
-                                        motion rendered in Redshift. Focused on
-                                        physics-based animation and sharp
-                                        digital aesthetics that command the
-                                        visual landscape.
-                                    </p>
-                                </section>
-                            </div>
-                            <div className="flex flex-col w-full overflow-hidden">
-                                <section
-                                    aria-label="About Badbug"
-                                    className="w-full mt-[5%] overflow-hidden"
-                                >
-                                    <p className="text-[0.3cqw] leading-none overflow-hidden">
-                                        Creative Coding. Building immersive
-                                        Three.js experiences with React and
-                                        TypeScript. We bridge technical art and
-                                        full-stack performance to infect the
-                                        web.
-                                    </p>
-                                </section>
-                            </div>
-                        </div>
-                    </div>
-                </div> */}
-
-                {/* <div className="w-full h-16 mt-2 px-12">
-                    <Canvas camera={{ position: [0, 0, 8] }}>
-                        <PixelVideoProps
-                            src="/b0230f80072bf4bad0403d83e6a25825_t2.mp4"
-                            resX={150}
-                            resY={9} // 注意：因为高度只有 h-16，resY 设小一点点看起来更均匀
-                            gap={0.4}
-                            pixelAspect={1.0} // 强制每个像素矩形为 1:1 正方形
-                            pixelScale={1.0} // 如果觉得点与点之间空隙太大，可以用这个放大单个点
-                        />
-                    </Canvas>
-                </div> */}
             </div>
+
+            <WaterfallGallery />
             {/* <Header activeType={viewType} onTypeChange={setViewType} /> */}
 
             {/* <div className="mx-12 bg-[#EAEAEA] p-8">
-                <ShowcaseList type={viewType} />
-            </div> */}
+        <ShowcaseList type={viewType} />
+    </div> */}
         </div>
     );
 }

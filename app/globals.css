@@ -44,6 +44,29 @@
   --background: #000000;
 }
 
+@layer components {
+  .element-glow {
+    --glow-color: #182018; 
+    --glow-blur: 1px;
+    --glow-opacity: 0.3; /* 稍微提升整体基础透明度 */
+
+    /* 文字阴影（双层叠加，保持不变） */
+    text-shadow: 0 0 calc(var(--glow-blur) * 2) rgba(24, 32, 24, var(--glow-opacity)),
+                 0 0 var(--glow-blur) rgba(24, 32, 24, var(--glow-opacity));
+
+    /* 修复核心：为 SVG 图标和边框使用【双层 drop-shadow 叠加】 */
+    filter: drop-shadow(0 0 var(--glow-blur) rgba(24, 32, 24, calc(var(--glow-opacity) * 3)))
+            drop-shadow(0 0 calc(var(--glow-blur) * 2) rgba(24, 32, 24, calc(var(--glow-opacity) * 3)));
+
+    &.hover\:element-glow:hover {
+      --glow-color: #697569;
+      /* 悬停状态同样采用双层叠加 */
+      filter: drop-shadow(0 0 var(--glow-blur) rgba(105, 117, 105, var(--glow-opacity)))
+              drop-shadow(0 0 calc(var(--glow-blur) * 2) rgba(105, 117, 105, calc(var(--glow-opacity) - 0.2)));
+    }
+  }
+}
+
 /* 强制所有元素默认使用这个变量 */
 :root {
   font-family: var(--font-sans);
