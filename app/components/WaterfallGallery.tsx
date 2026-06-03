@@ -51,7 +51,7 @@ const MOCK_DATA: ShowcaseItem[] = [
     { 
         id: "6", 
         type: "text", 
-        content: "WE DON'T JUST RENDER IMAGES; WE ARCHITECT DIGITAL BEHAVIORS.", 
+        content: "ARCHITECT DIGITAL BEHAVIORS.", 
         aspectRatio: "aspect-[2/1]" 
     },
     { 
@@ -71,6 +71,13 @@ const MOCK_DATA: ShowcaseItem[] = [
         id: "9", 
         type: "text", 
         content: "16-BIT / REAL-TIME", 
+        aspectRatio: "aspect-square" 
+    },
+    { 
+        id: "10", 
+        type: "p5", 
+        title: "Boids Simulation", 
+        content: "https://editor.p5js.org/fatoony/full/FzdmRVLQM", 
         aspectRatio: "aspect-square" 
     },
 ];
@@ -128,19 +135,6 @@ const RenderCardContent = ({ item }: { item: ShowcaseItem }) => {
                             </div>
                         </div>
                     )}
-                    
-                    {/* 左上角悬浮的互动媒体类型标签 */}
-                    {/* 添加 pointer-events-none 避免阻挡鼠标对 iframe 的点击，hover 时微调透明度降低视觉干扰 */}
-                    <div className="absolute top-4 left-4 font-mono text-[#eaeaea] text-[10px] z-10 bg-black/60 px-2.5 py-0.5 rounded-full border border-[#444] backdrop-blur-sm pointer-events-none transition-opacity duration-300 group-hover/card:opacity-30">
-                        [ {item.type.toUpperCase()} ]
-                    </div>
-                    
-                    {/* 仅在有 URL 且未悬浮时提示可互动（可选，根据视觉需要留存） */}
-                    {item.content && (
-                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-100 group-hover/card:opacity-0 transition-opacity duration-300 font-mono text-[9px] text-green-400/70 bg-black/40 px-2 py-0.5 rounded pointer-events-none z-10">
-                            Hover / Click to Interact
-                        </div>
-                    )}
                 </div>
             );
         default:
@@ -164,7 +158,7 @@ export default function WaterfallGallery() {
     }, []);
 
     return (
-        <section className="w-full min-h-screen bg-[#0d0d0d] px-4 md:px-8 py-12">
+        <section className="w-full min-h-screen px-4 md:px-8 py-12">
             {/* 瀑布流核心布局：利用 columns 控制列数，随屏幕宽度自适应 */}
             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6">
                 
@@ -173,7 +167,7 @@ export default function WaterfallGallery() {
                     // mb-6 替代 row-gap，因为在 columns 布局中，垂直间距需要用 margin-bottom 设定
                     <div 
                         key={item.id} 
-                        className={`break-inside-avoid mb-6 relative group overflow-hidden ${item.aspectRatio} w-full rounded-lg border border-white/5 bg-[#141414]`}
+                        className={`break-inside-avoid mb-6 relative group overflow-hidden ${item.aspectRatio} w-full bg-[#141414]`}
                     >
                         {/* 核心内容渲染 */}
                         <RenderCardContent item={item} />
@@ -182,7 +176,6 @@ export default function WaterfallGallery() {
                         {/* 注意：pointer-events-none 非常关键，否则鼠标无法点击到底层的 iframe 进行交互 */}
                         {item.type !== 'text' && (
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-end p-6 z-20">
-                                <span className="font-mono text-[10px] text-white/60 uppercase tracking-wider">{item.type}</span>
                                 {item.title && (
                                     <h3 className="font-heading text-base font-bold text-white leading-none mt-1">
                                         {item.title}

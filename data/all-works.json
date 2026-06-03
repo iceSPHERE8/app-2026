@@ -1,73 +1,144 @@
 [
   {
-    "id": "1778431602260",
-    "createdAt": "2026-05-10T16:46:42.260Z",
-    "title": "test3",
+    "id": "1780484137005",
+    "createdAt": "2026-06-03T10:55:37.005Z",
+    "title": "",
     "description": "",
     "detailLink": "",
-    "mainMedia": {
-      "url": "/uploads/1778431598003.jpg",
-      "type": "image",
-      "aspectRatio": 1.4444444444444444
-    },
-    "coverUrl": "",
-    "coverAspectRatio": 1,
-    "previewVideoUrl": ""
-  },
-  {
-    "id": "1778431323815",
-    "createdAt": "2026-05-10T16:42:03.815Z",
-    "title": "another",
-    "description": "",
-    "detailLink": "",
-    "mainMedia": {
-      "url": "/uploads/1778431319234.jpg",
-      "type": "image",
-      "aspectRatio": 1
-    },
-    "coverUrl": "",
-    "coverAspectRatio": 1,
-    "previewVideoUrl": ""
-  },
-  {
-    "id": "1778429839561",
-    "createdAt": "2026-05-10T16:17:19.561Z",
-    "title": "test cover",
-    "description": "",
-    "detailLink": "",
-    "mainMedia": {
-      "url": "/uploads/1778429832918.jpg",
-      "type": "image"
-    },
-    "coverUrl": "",
-    "previewVideoUrl": ""
-  },
-  {
-    "id": "1778355378183",
-    "createdAt": "2026-05-09T19:36:18.183Z",
-    "title": "suzane",
-    "description": "this is a model preview test, have fun!",
-    "detailLink": "",
-    "mainMedia": {
-      "url": "/uploads/1778355575087.glb",
-      "type": "model"
-    },
+    "type": "glsl",
+    "content": "https://particlesfrompic.netlify.app/",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "updatedAt": "2026-05-09T19:55:57.480Z"
+    "aspectRatio": "aspect-square",
+    "renderMode": "direct",
+    "textBgUrl": "",
+    "updatedAt": "2026-06-03T10:55:48.120Z"
   },
   {
-    "id": "1778172565104",
-    "createdAt": "2026-05-07T16:49:25.104Z",
-    "title": "test",
-    "description": "2",
+    "id": "1780484099630",
+    "createdAt": "2026-06-03T10:54:59.630Z",
+    "title": "",
+    "description": "",
     "detailLink": "",
-    "mainMedia": {
-      "url": "/uploads/1778172646074.png",
-      "type": "image"
-    },
+    "type": "glsl",
+    "content": "https://text-web.netlify.app/",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "updatedAt": "2026-05-07T16:50:47.048Z"
+    "aspectRatio": "aspect-square",
+    "renderMode": "direct",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780483983821",
+    "createdAt": "2026-06-03T10:53:03.821Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "video",
+    "content": "/uploads/1780483973253.mp4",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-auto",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780483804506",
+    "createdAt": "2026-06-03T10:50:04.506Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "video",
+    "content": "/uploads/1780483780804.mp4",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-auto",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780483353960",
+    "createdAt": "2026-06-03T10:42:33.960Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "p5",
+    "content": "https://editor.p5js.org/fatoony/full/fI58Wv89K",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-square",
+    "renderMode": "direct",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780483261008",
+    "createdAt": "2026-06-03T10:41:01.008Z",
+    "title": "Visual Data Deconstructor v1.0",
+    "description": "An image intervention protocol executing via p5.js. Upon upload, target files are forcibly stripped of their original form and subjected to pixel-level physical destruction and reconstruction.",
+    "detailLink": "",
+    "type": "p5",
+    "content": "https://editor.p5js.org/fatoony/full/FzdmRVLQM",
+    "coverUrl": "/uploads/1780483012182.png",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-auto",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780482942282",
+    "createdAt": "2026-06-03T10:35:42.282Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "text",
+    "content": "16-BIT / REAL-TIME",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-square",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780482932578",
+    "createdAt": "2026-06-03T10:35:32.578Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "text",
+    "content": "ARCHITECT DIGITAL BEHAVIORS.",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-square",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780482911427",
+    "createdAt": "2026-06-03T10:35:11.427Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "text",
+    "content": "SYSTEM.INIT() / ALGORITHMIC CHAOS",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-square",
+    "renderMode": "cover",
+    "textBgUrl": ""
+  },
+  {
+    "id": "1780482842338",
+    "createdAt": "2026-06-03T10:34:02.338Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "image",
+    "content": "/uploads/1780482831014.jpg",
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-auto",
+    "renderMode": "cover",
+    "textBgUrl": "",
+    "updatedAt": "2026-06-03T10:34:08.389Z"
   }
 ]
