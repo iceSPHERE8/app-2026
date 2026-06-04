@@ -3,7 +3,7 @@ import LogoTextIcon from "../icons/LogoTextIcon";
 export default function Footer() {
     return (
         <>
-            <div className="w-full font-sans h-90 bg-[url('/footer-bg.jpg')] bg-black/15 bg-blend-multiply bg-cover bg-center bg-no-repeat flex items-center justify-center text-[#182018] select-none overflow-hidden">
+            <div className="w-full font-sans h-90 bg-[url('/footer-bg.jpg')] bg-black/15 bg-blend-multiply bg-cover bg-center bg-no-repeat flex items-center justify-center text-[#FAFFBC] select-none overflow-hidden">
                 <div className="flex flex-col items-center scale-75 md:scale-100">
                     
                     <h2 className="text-[34px] font-black leading-7 font-head element-glow">
@@ -35,7 +35,7 @@ export default function Footer() {
                             EST.
                         </div>
 
-                        <div className="border-[3px] border-[#182018] rounded-full mt-[10px] mr-[122px] px-[7px] leading-4 font-bold text-[12px] element-glow">
+                        <div className="border-[3px] border-[#FAFFBC] rounded-full mt-[10px] mr-[122px] px-[7px] leading-4 font-bold text-[12px] element-glow">
                             ALL RIGHTS RES.
                         </div>
                     </div>

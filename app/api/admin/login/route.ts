@@ -26,6 +26,9 @@ export async function POST(request: Request) {
             .createHash("sha256")
             .update(password)
             .digest("hex");
+        
+        console.log(inputHash);
+        
 
         // 3. 比对两个十六进制字符串
         // 使用 .toLowerCase() 确保大小写不敏感，防止手动输入错误
