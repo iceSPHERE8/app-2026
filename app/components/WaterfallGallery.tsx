@@ -181,20 +181,54 @@ const MediaCard = ({
             )}
 
             {/* --- 防火墙层 --- */}
-            {/* 防止外层直接点击视频导致的全屏等干扰，仅在没有显示 iframe 时生效 */}
             {!showIframe && (
                 <div className="absolute inset-0 z-20 pointer-events-auto bg-transparent hover:bg-white/5 transition-colors duration-300" />
             )}
 
-            {/* --- 右下角悬浮跳转图标 --- */}
+            {/* --- 左下角标题 (白色发光复古屏幕效果) --- */}
+            {item.title && (
+                <div className="
+                    absolute bottom-4 left-4 z-50 px-3 py-1.5 rounded-sm overflow-hidden
+                    bg-[#050505] border-2 border-[#1a1a1a] shadow-[inset_0_0_8px_rgba(0,0,0,1),0_4px_10px_rgba(0,0,0,0.5)]
+                    max-w-[70%] pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity duration-300
+                ">
+                    {/* 发光文字 */}
+                    <div className="
+                        relative z-0 truncate
+                        text-[#ffffff] text-[11px] leading-none font-mono font-bold uppercase tracking-[0.15em]
+                        [text-shadow:0_0_2px_rgba(255,255,255,0.8),0_0_6px_rgba(255,255,255,0.5)]
+                    ">
+                        {item.title}
+                    </div>
+                </div>
+            )}
+
+            {/* --- 右上角悬浮跳转图标 (复古按钮) --- */}
             {hasLink && (
                 <button
                     onClick={handleIconJump}
-                    // 取消悬停显示逻辑，直接保持 opacity-70 并在 hover 时点亮到 opacity-100
-                    className="absolute bottom-4 right-4 z-50 p-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white/80 hover:text-white hover:bg-black/80 hover:scale-110 transition-all duration-300 pointer-events-auto shadow-lg opacity-70 hover:opacity-100"
                     title="Open Link"
+                    className="
+                        group/btn
+                        absolute top-4 right-4 z-50 p-2 rounded-full overflow-hidden
+                        bg-[#050505] border-2 border-[#1a1a1a] 
+                        transition-all duration-200
+                        pointer-events-auto flex items-center justify-center
+                        opacity-80
+                    "
                 >
-                    <ExternalLink className="w-4 h-4" />
+                    {/* 发光图标 */}
+                    <ExternalLink 
+                        className="
+                            relative z-0 w-4 h-4 text-[#ffffff] transition-all duration-200
+                            group-hover/btn:brightness-125
+                            group-active/btn:brightness-50 group-active/btn:drop-shadow-none
+                        "
+                        style={{
+                            // 使用 CSS filter 实现纯白多重光晕效果
+                            filter: "drop-shadow(0 0 2px rgba(255,255,255,0.8)) drop-shadow(0 0 6px rgba(255,255,255,0.5))"
+                        }}
+                    />
                 </button>
             )}
         </div>

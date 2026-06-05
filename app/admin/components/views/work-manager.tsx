@@ -26,6 +26,7 @@ import {
 // --- 1. 对齐瀑布流的数据类型 ---
 type MediaType = "image" | "video" | "p5" | "glsl" | "3d" | "text";
 type RenderMode = "cover" | "direct";
+type CategoryType = "project" | "practice" | "cover" | "tool"; // 新增 category 类型
 
 export default function WorkManager({
     type: pageCategory,
@@ -50,6 +51,7 @@ export default function WorkManager({
         description: "",
         detailLink: "", 
         type: "image" as MediaType,
+        category: "project" as CategoryType, // 新增 category 字段
         content: "", 
         coverUrl: "", 
         previewVideoUrl: "", 
@@ -74,6 +76,7 @@ export default function WorkManager({
             description: item.description || "",
             detailLink: item.detailLink || "",
             type: item.type || "image",
+            category: item.category || "project", // 加载 category 字段
             content: item.content || "",
             coverUrl: item.coverUrl || "",
             previewVideoUrl: item.previewVideoUrl || "",
@@ -92,6 +95,7 @@ export default function WorkManager({
             description: "",
             detailLink: "",
             type: "image",
+            category: "project", // 重置 category 字段
             content: "",
             coverUrl: "",
             previewVideoUrl: "",
@@ -198,7 +202,7 @@ export default function WorkManager({
                     
                     <CardContent className="space-y-6 pt-6">
                         {/* --- 基础设置 --- */}
-                        <div className="grid gap-4 md:grid-cols-3">
+                        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
                             <div className="space-y-2 md:col-span-1">
                                 <label className="text-sm font-medium">作品类型 (Media Type)</label>
                                 <select
@@ -228,6 +232,21 @@ export default function WorkManager({
                                     <option value="aspect-[4/5]">4:5 (Instagram)</option>
                                     <option value="aspect-[2/1]">2:1 (Wide)</option>
                                     <option value="aspect-auto">Auto (自适应原始比例)</option>
+                                </select>
+                            </div>
+
+                            {/* --- 新增分类属性选框 --- */}
+                            <div className="space-y-2 md:col-span-1">
+                                <label className="text-sm font-medium">作品分类 (Category)</label>
+                                <select
+                                    className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value as CategoryType })}
+                                >
+                                    <option value="project">Project (项目)</option>
+                                    <option value="practice">Practice (练习)</option>
+                                    <option value="cover">Cover (封面)</option>
+                                    <option value="tool">Tool (工具)</option>
                                 </select>
                             </div>
 

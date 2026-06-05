@@ -10,7 +10,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
     { name: "all works", href: "/works" },
     { name: "tool lab", href: "/tools" },
-    { name: "projects", href: "/projects" },
 ];
 
 export default function Header() {
