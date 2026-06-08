@@ -8,6 +8,8 @@ import { Canvas } from "@react-three/fiber";
 
 import Header from "./components/layout/header";
 import WaterfallGallery from "./components/WaterfallGallery";
+import HeroComponent from "./components/layout/HeroComponent";
+import FeatureSection from "./components/layout/FeatureSection";
 import ShowcaseList from "./components/ShowcaseList";
 import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
 import PixelVideoProps from "./components/canvas/PixelVideoProps";
@@ -27,7 +29,7 @@ export default function Home() {
                 <div className="w-full">
                     <Header />
                 </div>
-                {/* <GPGPUFlowParticles count={8192} /> */}
+                <GPGPUFlowParticles count={512} />
 
                 <div className="w-full flex flex-col pb-8 items-center justify-center text-[#eaeaea]">
                     <CustomIcon className="w-24 h-16" />
@@ -58,6 +60,8 @@ export default function Home() {
             </div>
 
             <WaterfallGallery />
+            <HeroComponent />
+            <FeatureSection />
             {/* <Header activeType={viewType} onTypeChange={setViewType} /> */}
 
             {/* <div className="mx-12 bg-[#EAEAEA] p-8">

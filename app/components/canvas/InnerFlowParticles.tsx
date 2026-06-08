@@ -144,7 +144,7 @@ const InnerFlowParticlesGPGPU: React.FC<InnerProps> = ({
                 vTexIndex = textureIndex;
                 vInstanceUv = uv; // uv 是 geometry 提供的原始属性
 
-                float vScale = posSample.w;
+                float vScale = posSample.w * 3.0;
                 // 这里的 transformed 是 Three.js 内部变量
                 transformed = position * vScale + posSample.xyz;
                 `,
