@@ -46,7 +46,7 @@ export default function RootLayout({
                 <main className="grow">{children}</main>
 
                 {/* 你的 Footer 组件 */}
-                <Footer />
+                {/* <Footer /> */}
             </body>
         </html>
     );

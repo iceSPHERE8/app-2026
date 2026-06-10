@@ -1,21 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-
-import ImageStack from "./components/ImageStack";
-import { Canvas } from "@react-three/fiber";
 
 import Header from "./components/layout/header";
 import WaterfallGallery from "./components/WaterfallGallery";
 import HeroComponent from "./components/layout/HeroComponent";
 import FeatureSection from "./components/layout/FeatureSection";
-import ShowcaseList from "./components/ShowcaseList";
-import GPGPUFlowParticles from "./components/canvas/GPGPUFlowParticles";
-import PixelVideoProps from "./components/canvas/PixelVideoProps";
 
 import CustomIcon from "./components/icons/CustomIcon";
-import TextIcon from "./components/icons/TextIcon";
 
 export default function Home() {
     const [viewType, setViewType] = useState<"all-works" | "tool-lab">(
@@ -24,14 +16,14 @@ export default function Home() {
 
     return (
         <div className="">
-            <div className="relative w-full min-h-dvh flex flex-col justify-between">
+            <div className="relative w-full h-[240px] flex flex-col justify-between">
                 
                 <div className="w-full">
                     <Header />
                 </div>
-                <GPGPUFlowParticles count={512} />
+                {/* <GPGPUFlowParticles count={512} /> */}
 
-                <div className="w-full flex flex-col pb-8 items-center justify-center text-[#eaeaea]">
+                {/* <div className="w-full flex flex-col pb-8 items-center justify-center text-[#eaeaea]">
                     <CustomIcon className="w-24 h-16" />
                     <h1 className="font-heading text-[12px] leading-none text-center pt-2 max-w-[320px]">
                         From motion that stings to visuals that linger like
@@ -56,12 +48,13 @@ export default function Home() {
                             of the digital media designer's new frontier.
                         </p>
                     </section>
-                </div>
+                </div> */}
             </div>
-
+            
             <WaterfallGallery />
             <HeroComponent />
             <FeatureSection />
+            
             {/* <Header activeType={viewType} onTypeChange={setViewType} /> */}
 
             {/* <div className="mx-12 bg-[#EAEAEA] p-8">
