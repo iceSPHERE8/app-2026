@@ -109,7 +109,7 @@ const GridFragmentShader = `
 `;
 
 // ==========================================
-// 2. 上层几何体 (Block Layer) - 多层动态噪声环
+// 2. 上层几何体 (Block Layer)
 // ==========================================
 const BlockVertexShader = `
   ${noiseGLSL} 
@@ -125,16 +125,17 @@ const BlockVertexShader = `
   uniform float uCornerDotSize;
   uniform float uCornerDistance;
   
+  uniform float uRingCount;       
+  uniform float uNoiseOffsetAmp;  
+  
   uniform float uNoiseScale;
   uniform float uNoiseThreshold;
   uniform vec3  uNoiseOffset;
-  
-  // 【新增参数】
-  uniform float uRingCount;       // 圈层数量 (1.0 - 5.0)
-  uniform float uNoiseOffsetAmp;  // 噪声偏移幅度乘数
   uniform float uRingRadius;
   uniform float uRingWidth;
   uniform float uRingThreshold;
+  
+  uniform float uSmoothEdge;
   
   attribute vec3 aOffset;
   attribute vec4 aData;
@@ -146,6 +147,9 @@ const BlockVertexShader = `
   varying float vType;
   varying vec2 vFinalScale; 
   varying float vLayerType; 
+  varying float vVisibility;
+  
+  varying vec3 vOffset;
 
   void main() {
     vUv = uv;
@@ -154,57 +158,57 @@ const BlockVertexShader = `
     float phaseY = aData.z;
     vType = aData.w;
     
+    vOffset = aOffset; 
+    
     float time = uTime * uAnimSpeed;
     vec3 pos = position;
     
-    // --- 多重对称噪声环计算 ---
     vec3 symPos = abs(aOffset); 
     
-    // 中心第一层 (Layer 1)
     float n0 = snoise(symPos * uNoiseScale + time * 0.2); 
-    float finalMask = step(uNoiseThreshold, n0); 
+    float mask0 = smoothstep(uNoiseThreshold - uSmoothEdge, uNoiseThreshold + uSmoothEdge, n0); 
+    
+    float finalMask = mask0; 
     vLayerType = 1.0;
     
-    // 动态生成外围圈层 (最大 5 圈)
     float distToCenter = length(symPos.xy);
     
     for(int i = 1; i < 5; i++) {
         float fi = float(i);
         if (fi < uRingCount) {
-            // 计算当前层的专属噪声偏移：层级越靠外，偏移量呈倍数增长
             vec3 currentOffset = uNoiseOffset * (fi * uNoiseOffsetAmp);
             vec3 offsetPos = symPos + currentOffset;
-            
-            // 当前层的噪声 (叠加了时间的错位)
             float n_i = snoise(offsetPos * uNoiseScale * (1.0 + fi * 0.1) - time * 0.15);
             
-            // 当前层的遮罩半径
             float currentRadius = uRingRadius * fi; 
-            
             float ringMask = smoothstep(currentRadius + uRingWidth, currentRadius, distToCenter) * smoothstep(currentRadius - uRingWidth, currentRadius, distToCenter);
             
-            float currentLayerMask = step(uRingThreshold, n_i) * ringMask;
+            float ringStep = smoothstep(uRingThreshold - uSmoothEdge, uRingThreshold + uSmoothEdge, n_i);
+            float currentLayerMask = ringStep * ringMask;
             
-            // 记录最高层级，用于片元着色器上色
-            if (currentLayerMask > 0.0 && finalMask == 0.0) {
+            if (currentLayerMask > finalMask) {
                 vLayerType = fi + 1.0; 
             }
-            
-            // 合并遮罩
             finalMask = max(finalMask, currentLayerMask);
         }
     }
     
-    // 如果没有任何一层覆盖到该位置，直接剔除
-    if (finalMask <= 0.0) {
+    if (finalMask <= 0.001) {
       gl_Position = vec4(0.0);
       return; 
     }
+    
+    vVisibility = finalMask;
 
-    // --- 缩放与运动逻辑 ---
     float scaleCycle = sin(time * uScaleAnimSpeed + phaseX);
     float animScaleX = 1.0 + max(0.0, scaleCycle) * uScaleAnimAmp;
     float animScaleY = 1.0 + max(0.0, -scaleCycle) * uScaleAnimAmp;
+    
+    float squashX = mix(1.0, finalMask, step(0.5, vSeed));
+    float squashY = mix(finalMask, 1.0, step(0.5, vSeed));
+    
+    animScaleX *= squashX;
+    animScaleY *= squashY;
     
     vec2 finalScale = aScale * vec2(animScaleX, animScaleY);
     vFinalScale = finalScale;
@@ -232,6 +236,9 @@ const BlockVertexShader = `
 `;
 
 const BlockFragmentShader = `
+  ${noiseGLSL} 
+
+  uniform float uTime;
   uniform vec3 uColorWhite;
   uniform vec3 uColorShadow;
   uniform vec3 uColorAccent;
@@ -241,14 +248,30 @@ const BlockFragmentShader = `
   uniform float uCornerDotSize; 
   uniform float uCornerDistance; 
   
+  uniform vec3 uGradColor1;
+  uniform vec3 uGradColor2;
+  uniform vec3 uGradColor3;
+  uniform vec3 uGradColor4;
+  uniform float uGradRange;
+  uniform float uGradNoiseScale;
+  uniform float uGradNoiseAmp;
+  
+  // 【新增参数】：Alpha 与 发光强度
+  uniform float uPlaneAlpha;
+  uniform float uGlowIntensity;
+  
   varying vec2 vUv;
   varying vec3 vWorldPos;
   varying float vSeed;
   varying float vType;
   varying vec2 vFinalScale; 
   varying float vLayerType; 
+  varying float vVisibility; 
+  varying vec3 vOffset;
 
   void main() {
+    float currentDotSize = uCornerDotSize * smoothstep(0.0, 0.5, vVisibility);
+
     float margin = uCornerDistance + uCornerDotSize + 0.1;
     vec2 expandedScale = vFinalScale + vec2(margin * 2.0);
     vec2 absPhysicalPos = abs(vUv - 0.5) * expandedScale;
@@ -258,27 +281,47 @@ const BlockFragmentShader = `
     
     vec2 dotCenter = blockHalfSize + vec2(uCornerDistance);
     float cornerDist = length(absPhysicalPos - dotCenter);
-    float isCorner = smoothstep(uCornerDotSize + 0.02, uCornerDotSize, cornerDist);
+    float isCorner = smoothstep(currentDotSize + 0.02, currentDotSize, cornerDist);
+    
+    vec3 symPos = abs(vOffset);
+    
+    float gradNoise = snoise(vec3(symPos.xy * uGradNoiseScale, uTime * 0.15));
+    float organicDist = length(symPos.xy) + gradNoise * uGradNoiseAmp;
+    float t = clamp(organicDist / uGradRange, 0.0, 1.0);
+    
+    vec3 gradColor;
+    if (t < 0.333) {
+        gradColor = mix(uGradColor1, uGradColor2, smoothstep(0.0, 0.333, t));
+    } else if (t < 0.666) {
+        gradColor = mix(uGradColor2, uGradColor3, smoothstep(0.333, 0.666, t));
+    } else {
+        gradColor = mix(uGradColor3, uGradColor4, smoothstep(0.666, 1.0, t));
+    }
+    
+    // 给渐变色乘以发光强度 (产生过曝/高亮效果)
+    gradColor *= uGlowIntensity;
+    
+    vec3 currentThemeWhite = mix(gradColor, uColorWhite, smoothstep(0.8, 1.0, t));
     
     float depthNorm = clamp((vWorldPos.z - uDepthMin) / (uDepthMax - uDepthMin), 0.0, 1.0);
     float shadowFactor = depthNorm - fract(sin(dot(vWorldPos.xy, vec2(12.9898, 78.233))) * 43758.5453) * 0.1;
     
-    vec3 baseColor = mix(uColorShadow, uColorWhite, smoothstep(0.0, 1.0, shadowFactor));
+    vec3 baseColor = mix(uColorShadow, currentThemeWhite, smoothstep(0.0, 1.0, shadowFactor));
     
-    // 【新增】根据所属的圈层级赋予不同的发光浓度
     if (vLayerType > 1.0) {
-       // 越靠外的圈，颜色受到的高亮主题色污染越重
        float colorIntensity = min(0.1 + vLayerType * 0.15, 0.8);
-       baseColor = mix(baseColor, uColorAccent, colorIntensity); 
+       baseColor = mix(baseColor, uColorAccent * uGlowIntensity, colorIntensity); 
     }
 
     vec4 finalColor = vec4(0.0);
     
     if (vType == 0.0) {
       if (isCorner > 0.5) {
-        finalColor = vec4(uColorAccent, 1.0);
+        // 顶点粒子增加发光
+        finalColor = vec4(uColorAccent * uGlowIntensity * 1.5, 1.0);
       } else if (inBlock) {
-        finalColor = vec4(baseColor, 1.0);
+        // 【核心修改】：平面的最终颜色输出使用 uPlaneAlpha 作为透明度
+        finalColor = vec4(baseColor, uPlaneAlpha);
         if (vSeed > 0.9 && absPhysicalPos.x < blockHalfSize.x * 0.8 && absPhysicalPos.y < blockHalfSize.y * 0.8) discard;
       } else {
         discard;
@@ -286,7 +329,7 @@ const BlockFragmentShader = `
     } 
     else if (vType == 1.0) {
       if (isCorner > 0.5) {
-        finalColor = vec4(uColorWhite, 1.0);
+        finalColor = vec4(uColorWhite * uGlowIntensity, 1.0);
       } else {
         discard;
       }
@@ -314,10 +357,23 @@ const SymmetricalArt = () => {
       scaleAnimSpeed: { value: 3.0, min: 0.0, max: 10.0 },
       scaleAnimAmp: { value: 0.8, min: 0.0, max: 3.0 },
     }),
+    OrganicGradient: folder({ 
+      gradColor1: '#ff2a6d', 
+      gradColor2: '#b100ff', 
+      gradColor3: '#05d9e8', 
+      gradColor4: '#010048', 
+      gradRange: { value: 50.0, min: 10.0, max: 150.0, step: 1.0 }, 
+      gradNoiseScale: { value: 0.06, min: 0.01, max: 0.3, step: 0.01 }, 
+      gradNoiseAmp: { value: 20.0, min: 0.0, max: 80.0, step: 1.0 }, 
+      
+      // 【新增】：透明度和发光参数
+      planeAlpha: { value: 0.85, min: 0.1, max: 1.0, step: 0.05 },
+      glowIntensity: { value: 1.5, min: 1.0, max: 10.0, step: 0.1 },
+    }),
     NoisePattern: folder({ 
       noiseScale: { value: 0.05, min: 0.01, max: 0.2, step: 0.01 },
       noiseThreshold: { value: 0.0, min: -1.0, max: 1.0, step: 0.05 }, 
-      // 【新增】圈层数量和偏移幅度
+      smoothEdge: { value: 0.2, min: 0.01, max: 1.0, step: 0.01 },
       ringCount: { value: 2.0, min: 1.0, max: 5.0, step: 1.0 },
       noiseOffsetAmp: { value: 1.5, min: 0.0, max: 5.0, step: 0.1 },
       
@@ -328,7 +384,6 @@ const SymmetricalArt = () => {
       ringThreshold: { value: 0.1, min: -1.0, max: 1.0, step: 0.05 },
     }),
     Structure: folder({
-      // 将铺设范围扩大，以容纳 5 层环的巨大面积
       spreadX: { value: 80.0, min: 20.0, max: 150.0 },
       spreadY: { value: 60.0, min: 20.0, max: 120.0 },
       depthZ: { value: 15.0, min: 5.0, max: 30.0 },
@@ -347,7 +402,6 @@ const SymmetricalArt = () => {
   });
 
   const gridData = useMemo(() => {
-    // 网格同步拉长
     const countX = 80;
     const countZ = 15;
     const count = countX * countZ * 2;
@@ -368,7 +422,6 @@ const SymmetricalArt = () => {
   }, [controls.gridDensity]);
 
   const blockData = useMemo(() => {
-    // 增加数据量到单象限 6000 (总计 24000 个实例化物体)，足以支撑 5 层环的面积
     const quadrantCount = 6000; 
     const totalCount = quadrantCount * 4;
     const offsets = new Float32Array(totalCount * 3);
@@ -428,16 +481,29 @@ const SymmetricalArt = () => {
     uCornerDotSize: { value: controls.cornerDotSize },
     uCornerDistance: { value: controls.cornerDistance },
     
-    // 初始化新的 Uniforms
     uRingCount: { value: controls.ringCount },
     uNoiseOffsetAmp: { value: controls.noiseOffsetAmp },
     
     uNoiseScale: { value: controls.noiseScale },
     uNoiseThreshold: { value: controls.noiseThreshold },
+    uSmoothEdge: { value: controls.smoothEdge }, 
     uNoiseOffset: { value: new THREE.Vector3(controls.noiseOffsetX, controls.noiseOffsetY, 0.0) },
     uRingRadius: { value: controls.ringRadius },
     uRingWidth: { value: controls.ringWidth },
     uRingThreshold: { value: controls.ringThreshold },
+    
+    uGradColor1: { value: new THREE.Color(controls.gradColor1) },
+    uGradColor2: { value: new THREE.Color(controls.gradColor2) },
+    uGradColor3: { value: new THREE.Color(controls.gradColor3) },
+    uGradColor4: { value: new THREE.Color(controls.gradColor4) },
+    uGradRange: { value: controls.gradRange },
+    uGradNoiseScale: { value: controls.gradNoiseScale },
+    uGradNoiseAmp: { value: controls.gradNoiseAmp },
+    
+    // 【新增 Uniforms注入】
+    uPlaneAlpha: { value: controls.planeAlpha },
+    uGlowIntensity: { value: controls.glowIntensity },
+
     uColorWhite: { value: new THREE.Color(controls.colorWhite) },
     uColorShadow: { value: new THREE.Color(controls.colorShadow) },
     uColorAccent: { value: new THREE.Color(controls.colorAccent) },
@@ -457,16 +523,28 @@ const SymmetricalArt = () => {
         blockMaterialRef.current.uniforms.uCornerDotSize.value = controls.cornerDotSize;
         blockMaterialRef.current.uniforms.uCornerDistance.value = controls.cornerDistance;
         
-        // 更新新增参数
         blockMaterialRef.current.uniforms.uRingCount.value = controls.ringCount;
         blockMaterialRef.current.uniforms.uNoiseOffsetAmp.value = controls.noiseOffsetAmp;
         
         blockMaterialRef.current.uniforms.uNoiseScale.value = controls.noiseScale;
         blockMaterialRef.current.uniforms.uNoiseThreshold.value = controls.noiseThreshold;
+        blockMaterialRef.current.uniforms.uSmoothEdge.value = controls.smoothEdge; 
         blockMaterialRef.current.uniforms.uNoiseOffset.value.set(controls.noiseOffsetX, controls.noiseOffsetY, 0.0);
         blockMaterialRef.current.uniforms.uRingRadius.value = controls.ringRadius;
         blockMaterialRef.current.uniforms.uRingWidth.value = controls.ringWidth;
         blockMaterialRef.current.uniforms.uRingThreshold.value = controls.ringThreshold;
+        
+        blockMaterialRef.current.uniforms.uGradColor1.value.set(controls.gradColor1);
+        blockMaterialRef.current.uniforms.uGradColor2.value.set(controls.gradColor2);
+        blockMaterialRef.current.uniforms.uGradColor3.value.set(controls.gradColor3);
+        blockMaterialRef.current.uniforms.uGradColor4.value.set(controls.gradColor4);
+        blockMaterialRef.current.uniforms.uGradRange.value = controls.gradRange;
+        blockMaterialRef.current.uniforms.uGradNoiseScale.value = controls.gradNoiseScale;
+        blockMaterialRef.current.uniforms.uGradNoiseAmp.value = controls.gradNoiseAmp;
+        
+        // 【新增】：更新 Alpha 和 Glow 参数
+        blockMaterialRef.current.uniforms.uPlaneAlpha.value = controls.planeAlpha;
+        blockMaterialRef.current.uniforms.uGlowIntensity.value = controls.glowIntensity;
     }
   }, [controls]);
 
@@ -498,7 +576,8 @@ const SymmetricalArt = () => {
           vertexShader={BlockVertexShader}
           fragmentShader={BlockFragmentShader}
           uniforms={blockUniforms}
-          transparent={false}
+          // 【关键修改】：将 transparent 设为 true，这样 uPlaneAlpha 才会生效
+          transparent={true}
           alphaTest={0.5}
           depthWrite={true}
           side={THREE.DoubleSide}
