@@ -16,15 +16,21 @@ export interface MediaItem {
 
 interface MediaCanvasProps {
   items: MediaItem[];
-  vacuumRadius?: number; // 高亮区域和普通区域之间的真空范围半径
+  vacuumRadius?: number;
 }
 
 interface PositionedItem extends MediaItem {
   x: number;
   y: number;
-  originX: number; // 动画起始中心点 X
-  originY: number; // 动画起始中心点 Y
+  originX: number;
+  originY: number;
   zIndex: number;
+}
+
+// 用于在兄弟组件之间进行高性能物理碰撞检测和位置同步的共享状态池
+interface SharedPhysicsState {
+  positions: Record<string, { x: number; y: number }>;
+  setters: Record<string, React.Dispatch<React.SetStateAction<{ x: number; y: number }>>>;
 }
 
 // --- 可拖拽子组件 ---
@@ -32,17 +38,33 @@ const DraggableItem = ({
   item,
   onDoubleClick,
   onDragStart,
+  physicsState,
 }: {
   item: PositionedItem;
   onDoubleClick: (item: MediaItem) => void;
   onDragStart: (id: string) => void;
+  physicsState: SharedPhysicsState;
 }) => {
-  // 初始位置设为中心点 (originX, originY)
   const [pos, setPos] = useState({ x: item.originX, y: item.originY });
   const [isEntering, setIsEntering] = useState(true);
   
+  const [isDraggingState, setIsDraggingState] = useState(false); 
   const isDragging = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
+
+  // 挂载时，将自己的坐标和更新函数注册到物理引擎池中
+  useEffect(() => {
+    physicsState.setters[item.id] = setPos;
+    return () => {
+      delete physicsState.setters[item.id];
+      delete physicsState.positions[item.id];
+    };
+  }, [item.id, physicsState]);
+
+  // 实时同步自己的位置到共享池
+  useEffect(() => {
+    physicsState.positions[item.id] = pos;
+  }, [pos, item.id, physicsState]);
 
   // 处理出现动画
   useEffect(() => {
@@ -50,7 +72,6 @@ const DraggableItem = ({
       setPos({ x: item.x, y: item.y });
     }, 50);
 
-    // 动画时间延长到了 1.2s，所以这里对应的状态关闭时间同步调大到 1250ms
     const timer2 = setTimeout(() => {
       setIsEntering(false);
     }, 1250);
@@ -59,19 +80,13 @@ const DraggableItem = ({
       clearTimeout(timer1);
       clearTimeout(timer2);
     };
-  }, []);
-
-  // 监听父组件传来的坐标变化
-  useEffect(() => {
-    if (!isEntering && !isDragging.current) {
-      setPos({ x: item.x, y: item.y });
-    }
-  }, [item.x, item.y, isEntering]);
+  }, [item.x, item.y]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     isDragging.current = true;
-    setIsEntering(false); // 抓取时立刻打断动画
+    setIsDraggingState(true); 
+    setIsEntering(false);
     onDragStart(item.id);
     
     dragOffset.current = {
@@ -81,14 +96,43 @@ const DraggableItem = ({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!isDragging.current) return;
-      setPos({
-        x: moveEvent.clientX - dragOffset.current.x,
-        y: moveEvent.clientY - dragOffset.current.y,
+      const newX = moveEvent.clientX - dragOffset.current.x;
+      const newY = moveEvent.clientY - dragOffset.current.y;
+
+      setPos({ x: newX, y: newY });
+      physicsState.positions[item.id] = { x: newX, y: newY };
+
+      // --- 物理排斥（Collision & Repulsion）逻辑 ---
+      const REPULSION_RADIUS = 95; 
+      const REPULSION_FORCE = 0.35; 
+
+      Object.keys(physicsState.positions).forEach((otherId) => {
+        if (otherId === item.id) return; 
+
+        const otherPos = physicsState.positions[otherId];
+        const dx = otherPos.x - newX;
+        const dy = otherPos.y - newY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0 && dist < REPULSION_RADIUS) {
+          const overlap = REPULSION_RADIUS - dist;
+          const forceX = (dx / dist) * overlap * REPULSION_FORCE;
+          const forceY = (dy / dist) * overlap * REPULSION_FORCE;
+
+          const nextOtherX = otherPos.x + forceX;
+          const nextOtherY = otherPos.y + forceY;
+
+          if (physicsState.setters[otherId]) {
+            physicsState.setters[otherId]({ x: nextOtherX, y: nextOtherY });
+            physicsState.positions[otherId] = { x: nextOtherX, y: nextOtherY };
+          }
+        }
       });
     };
 
     const handleMouseUp = () => {
       isDragging.current = false;
+      setIsDraggingState(false);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
@@ -97,18 +141,18 @@ const DraggableItem = ({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const isAtOrigin = isEntering && pos.x === item.originX && pos.y === item.originY;
-
   return (
     <div
-      className="absolute flex flex-col items-center cursor-grab active:cursor-grabbing w-20 group select-none"
+      className={`absolute flex flex-col items-center cursor-grab active:cursor-grabbing w-20 group select-none ${isDraggingState ? 'z-50' : ''}`}
       style={{
-        transform: `translate(${pos.x}px, ${pos.y}px) scale(${isAtOrigin ? 0.3 : 1})`,
+        // 核心修改：去除了 scale()，仅保留位移动画，大小始终保持不变
+        transform: `translate(${pos.x}px, ${pos.y}px)`,
         opacity: 1, 
-        // 核心修改：使用 1.2s 搭配强缓动曲线，让初始在中心停顿的时间明显变长
         transition: isEntering 
           ? 'transform 1.2s cubic-bezier(0.85, 0, 0.15, 1)' 
-          : 'none',
+          : isDraggingState 
+            ? 'none' 
+            : 'transform 0.15s ease-out',
         zIndex: item.zIndex,
       }}
       onMouseDown={handleMouseDown}
@@ -152,6 +196,12 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
   const [positionedItems, setPositionedItems] = useState<PositionedItem[]>([]);
   const [activeItem, setActiveItem] = useState<MediaItem | null>(null);
   const [maxZIndex, setMaxZIndex] = useState(10);
+
+  // 初始化物理共享状态池
+  const physicsState = useRef<SharedPhysicsState>({
+    positions: {},
+    setters: {},
+  });
 
   // 初始化坐标分配
   useEffect(() => {
@@ -227,7 +277,7 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden bg-[#eaeaea]"
+      className="relative w-full h-screen bg-transparent"
     >
       {/* 渲染桌面元素 */}
       {positionedItems.map((item) => (
@@ -236,13 +286,14 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
           item={item}
           onDoubleClick={setActiveItem}
           onDragStart={handleDragStart}
+          physicsState={physicsState.current} // 将物理状态池传入
         />
       ))}
 
       {/* 媒体预览弹窗 */}
       {activeItem && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={() => setActiveItem(null)}
         >
           <div 
