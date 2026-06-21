@@ -94,7 +94,6 @@ export default function Page() {
       <div className="relative w-full flex-1 z-10 -mt-[400px]">
         <MediaCanvas items={mockData} vacuumRadius={320} />
       </div>
-      <ImageStack />
 
     </main>
   );
