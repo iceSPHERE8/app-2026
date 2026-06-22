@@ -1,5 +1,28 @@
 [
   {
+    "id": "1782118693181",
+    "createdAt": "2026-06-22T08:58:13.181Z",
+    "title": "",
+    "description": "",
+    "detailLink": "",
+    "type": "image-list",
+    "category": "project",
+    "content": "",
+    "imageList": [
+      "/uploads/1782118641139.png",
+      "/uploads/1782118641179.png",
+      "/uploads/1782118641214.png",
+      "/uploads/1782118641270.png",
+      "/uploads/1782118641306.png"
+    ],
+    "coverUrl": "",
+    "previewVideoUrl": "",
+    "aspectRatio": "aspect-auto",
+    "renderMode": "cover",
+    "textBgUrl": "",
+    "updatedAt": "2026-06-22T09:06:15.158Z"
+  },
+  {
     "id": "1781549463118",
     "createdAt": "2026-06-15T18:51:03.118Z",
     "title": "狗狗视界Pawspective",
@@ -64,7 +87,7 @@
     "createdAt": "2026-06-05T10:21:16.589Z",
     "title": "MINI-The BOX 2024 Project",
     "description": "",
-    "detailLink": "",
+    "detailLink": "/my-works/mini-thebox",
     "type": "image",
     "category": "project",
     "content": "/uploads/1780654849735.jpg",
@@ -73,7 +96,8 @@
     "aspectRatio": "aspect-[3/4]",
     "renderMode": "cover",
     "textBgUrl": "",
-    "updatedAt": "2026-06-10T08:55:53.604Z"
+    "updatedAt": "2026-06-22T09:45:57.805Z",
+    "imageList": []
   },
   {
     "id": "1780654377209",

@@ -20,13 +20,14 @@ import {
     Link as LinkIcon,
     ExternalLink,
     LayoutTemplate,
-    MonitorPlay
+    MonitorPlay,
+    Images // 新增一个图标用于表示多图
 } from "lucide-react";
 
-// --- 1. 对齐瀑布流的数据类型 ---
-type MediaType = "image" | "video" | "p5" | "glsl" | "3d" | "text";
+// --- 1. 对齐瀑布流的数据类型 (新增 image-list) ---
+type MediaType = "image" | "image-list" | "video" | "p5" | "glsl" | "3d" | "text";
 type RenderMode = "cover" | "direct";
-type CategoryType = "project" | "practice" | "cover" | "tool"; // 新增 category 类型
+type CategoryType = "project" | "practice" | "cover" | "tool";
 
 export default function WorkManager({
     type: pageCategory,
@@ -38,21 +39,24 @@ export default function WorkManager({
     const [items, setItems] = useState<any[]>([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [uploading, setUploading] = useState<"content" | "cover" | "video" | "textBg" | null>(null);
+    // 上传状态新增 "imageList"
+    const [uploading, setUploading] = useState<"content" | "cover" | "video" | "textBg" | "imageList" | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const contentInputRef = useRef<HTMLInputElement>(null);
     const coverInputRef = useRef<HTMLInputElement>(null);
     const videoInputRef = useRef<HTMLInputElement>(null);
     const textBgInputRef = useRef<HTMLInputElement>(null);
+    const imageListInputRef = useRef<HTMLInputElement>(null); // 新增多图上传 Ref
 
     const [formData, setFormData] = useState({
         title: "",
         description: "",
         detailLink: "", 
         type: "image" as MediaType,
-        category: "project" as CategoryType, // 新增 category 字段
+        category: "project" as CategoryType,
         content: "", 
+        imageList: [] as string[], // 新增：专门存储多图的数组
         coverUrl: "", 
         previewVideoUrl: "", 
         aspectRatio: "aspect-square", 
@@ -76,8 +80,9 @@ export default function WorkManager({
             description: item.description || "",
             detailLink: item.detailLink || "",
             type: item.type || "image",
-            category: item.category || "project", // 加载 category 字段
+            category: item.category || "project",
             content: item.content || "",
+            imageList: item.imageList || [], // 恢复多图数据
             coverUrl: item.coverUrl || "",
             previewVideoUrl: item.previewVideoUrl || "",
             aspectRatio: item.aspectRatio || "aspect-square",
@@ -95,8 +100,9 @@ export default function WorkManager({
             description: "",
             detailLink: "",
             type: "image",
-            category: "project", // 重置 category 字段
+            category: "project",
             content: "",
+            imageList: [], // 重置多图数据
             coverUrl: "",
             previewVideoUrl: "",
             aspectRatio: "aspect-square",
@@ -174,6 +180,54 @@ export default function WorkManager({
         }
     };
 
+    // 新增：处理多图批量上传
+    const onMultiUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setUploading("imageList");
+        const newUrls: string[] = [];
+
+        // 串行上传多张图片（如果后端支持批量，这里可以优化为一个请求）
+        for (let i = 0; i < files.length; i++) {
+            const body = new FormData();
+            body.append("file", files[i]);
+
+            try {
+                const res = await fetch("/api/admin/upload-media", {
+                    method: "POST",
+                    body,
+                });
+                const result = await res.json();
+                if (result.success) {
+                    newUrls.push(result.url);
+                }
+            } catch (error) {
+                console.error("Upload failed for file:", files[i].name, error);
+            }
+        }
+
+        // 将新上传的图片追加到现有列表中
+        setFormData((prev) => ({ 
+            ...prev, 
+            imageList: [...prev.imageList, ...newUrls] 
+        }));
+        setUploading(null);
+        
+        // 清空 input 值，允许重复上传相同文件
+        if (imageListInputRef.current) {
+            imageListInputRef.current.value = "";
+        }
+    };
+
+    // 删除单张缩略图
+    const removeImageFromList = (indexToRemove: number) => {
+        setFormData((prev) => ({
+            ...prev,
+            imageList: prev.imageList.filter((_, idx) => idx !== indexToRemove)
+        }));
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -195,7 +249,7 @@ export default function WorkManager({
                         <CardTitle className="text-xl font-bold">
                             {editingId ? "编辑作品属性" : "上传新作品"}
                         </CardTitle>
-                        <button type="button" onClick={closeForm} className="hover:rotate-90 transition-transform">
+                        <button type="button" title="close form" onClick={closeForm} className="hover:rotate-90 transition-transform">
                             <X className="h-5 w-5 text-muted-foreground" />
                         </button>
                     </CardHeader>
@@ -208,9 +262,11 @@ export default function WorkManager({
                                 <select
                                     className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                     value={formData.type}
+                                    title="form date type"
                                     onChange={(e) => setFormData({ ...formData, type: e.target.value as MediaType, content: "" })}
                                 >
-                                    <option value="image">Image (图片)</option>
+                                    <option value="image">Image (单图)</option>
+                                    <option value="image-list">Image List (图片组/轮播)</option>
                                     <option value="video">Video (视频)</option>
                                     <option value="3d">3D Model / WebGL</option>
                                     <option value="glsl">GLSL Shader</option>
@@ -235,7 +291,6 @@ export default function WorkManager({
                                 </select>
                             </div>
 
-                            {/* --- 新增分类属性选框 --- */}
                             <div className="space-y-2 md:col-span-1">
                                 <label className="text-sm font-medium">作品分类 (Category)</label>
                                 <select
@@ -292,6 +347,62 @@ export default function WorkManager({
                                         onChange={(e) => onUpload(e, "content")}
                                         accept={formData.type === "image" ? "image/*" : "video/*"}
                                     />
+                                </div>
+                            )}
+
+                            {/* --- 新增：多图列表上传区 --- */}
+                            {formData.type === "image-list" && (
+                                <div className="space-y-4">
+                                    <div
+                                        onClick={() => imageListInputRef.current?.click()}
+                                        className={`border-2 border-dotted rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/5 hover:border-primary/50 transition-all group min-h-[120px] ${uploading === "imageList" ? "opacity-50 pointer-events-none" : ""}`}
+                                    >
+                                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground group-hover:text-primary transition-colors" />
+                                        <p className="text-sm text-muted-foreground">
+                                            {uploading === "imageList" ? "上传中，请稍候..." : "点击上传多张图片 (支持按住 Ctrl/Cmd 批量选择)"}
+                                        </p>
+                                        <input
+                                            type="file"
+                                            multiple // 核心属性：允许选择多文件
+                                            ref={imageListInputRef}
+                                            className="hidden"
+                                            onChange={onMultiUpload}
+                                            accept="image/*"
+                                        />
+                                    </div>
+
+                                    {/* 预览网格 */}
+                                    {formData.imageList.length > 0 && (
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between text-sm text-muted-foreground">
+                                                <span>已上传 {formData.imageList.length} 张图片</span>
+                                                <span className="text-xs">前端可据此渲染轮播组件</span>
+                                            </div>
+                                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 bg-background/50 p-3 rounded-lg border">
+                                                {formData.imageList.map((url, idx) => (
+                                                    <div key={idx} className="relative group aspect-square rounded-md overflow-hidden bg-muted border border-border shadow-sm">
+                                                        <img src={url} alt={`list-img-${idx}`} className="w-full h-full object-cover" />
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    removeImageFromList(idx);
+                                                                }}
+                                                                className="p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors transform hover:scale-110"
+                                                                title="移除此图"
+                                                            >
+                                                                <Trash2 className="w-3.5 h-3.5" />
+                                                            </button>
+                                                        </div>
+                                                        <div className="absolute top-1 left-1 bg-black/60 text-white text-[10px] px-1.5 rounded backdrop-blur-sm">
+                                                            {idx + 1}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -375,6 +486,7 @@ export default function WorkManager({
                                             className="hidden"
                                             onChange={(e) => onUpload(e, "cover")}
                                             accept="image/*"
+                                            title="cover upload"
                                         />
                                     </div>
                                     <div
@@ -431,15 +543,16 @@ export default function WorkManager({
             {/* --- 列表显示视图 --- */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
                 {items.map((item) => {
-                    // 推导出一个视频封面来源，用于兜底
+                    // 推导视频兜底封面
                     const videoFrameUrl = (item.type === 'video' && item.content) ? item.content : item.previewVideoUrl;
+                    // 推导图集兜底封面（取第一张）
+                    const listFrameUrl = (item.type === 'image-list' && item.imageList?.length > 0) ? item.imageList[0] : null;
 
                     return (
                         <Card
                             key={item.id}
                             className="group overflow-hidden border-muted bg-card hover:shadow-2xl transition-all duration-500 relative"
                         >
-                            {/* 媒体预览层：修改为 aspect-square (1:1正方形) 并且加上相对定位 */}
                             <div className="w-full aspect-square bg-zinc-900 relative overflow-hidden flex items-center justify-center">
                                 
                                 {item.type === 'text' ? (
@@ -460,7 +573,11 @@ export default function WorkManager({
                                         <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-600 bg-zinc-900">
                                             {item.type === '3d' || item.type === 'glsl' || item.type === 'p5' ? (
                                                 <FileCode className="h-8 w-8 mb-2" />
-                                            ) : <ImageIcon className="h-8 w-8 mb-2" />}
+                                            ) : item.type === 'image-list' ? (
+                                                <Images className="h-8 w-8 mb-2" />
+                                            ) : (
+                                                <ImageIcon className="h-8 w-8 mb-2" />
+                                            )}
                                             <span className="text-[10px] uppercase tracking-widest font-bold">NO COVER</span>
                                         </div>
 
@@ -473,17 +590,20 @@ export default function WorkManager({
                                         ) : 
                                         /* 2. 优先显示手动上传的 Cover */
                                         item.coverUrl ? (
-                                            // 注意这里的 absolute inset-0 w-full h-full object-cover 是干掉白边的核心
                                             <img src={item.coverUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
                                         ) : 
-                                        /* 3. 是图片但没封面，拿原图撑满 */
+                                        /* 3. 是单图但没封面，拿原图撑满 */
                                         item.type === 'image' && item.content ? (
                                             <img src={item.content} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
                                         ) : 
-                                        /* 4. 【新增】没有封面，但是有视频 URL 时，截取第一帧撑满 */
+                                        /* 4. 是图集，拿列表第一张撑满 */
+                                        listFrameUrl ? (
+                                            <img src={listFrameUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
+                                        ) :
+                                        /* 5. 没有封面，但是有视频 URL 时，截取第一帧撑满 */
                                         videoFrameUrl ? (
                                             <video 
-                                                src={`${videoFrameUrl}#t=0.1`} // 核心魔法：#t=0.1 获取第一帧
+                                                src={`${videoFrameUrl}#t=0.1`} 
                                                 preload="metadata"
                                                 className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10"
                                             />
@@ -502,13 +622,21 @@ export default function WorkManager({
                                     </>
                                 )}
                                 
-                                {/* 左上角类型标签 (调整层级 z-30 确保显示在最上方) */}
+                                {/* 左上角类型标签 */}
                                 <span className="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm font-mono text-white/80 uppercase flex items-center gap-1.5 z-30 pointer-events-none">
                                     {item.type}
                                     {item.renderMode === 'direct' && (item.type === '3d' || item.type === 'glsl' || item.type === 'p5') && (
                                         <span className="text-green-400">● Live</span>
                                     )}
                                 </span>
+                                
+                                {/* 右上角图集数量指示器 */}
+                                {item.type === 'image-list' && item.imageList?.length > 1 && (
+                                    <span className="absolute top-2 right-2 text-[10px] px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm font-mono text-white/80 flex items-center gap-1 z-30 pointer-events-none">
+                                        <Images className="w-3 h-3" />
+                                        {item.imageList.length}
+                                    </span>
+                                )}
                             </div>
 
                             {/* 悬浮操作层 */}

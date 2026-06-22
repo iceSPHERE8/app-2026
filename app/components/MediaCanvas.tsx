@@ -19,12 +19,22 @@ interface MediaCanvasProps {
   vacuumRadius?: number;
 }
 
+// 定义高饱和度的果冻颜色池
+const JELLY_COLORS = [
+  { bg: "rgba(255, 0, 60, 1.0)", shadow: "rgba(255, 0, 60, 0.5)" },     // 高反差红
+  { bg: "rgba(0, 102, 255, 1.0)", shadow: "rgba(0, 102, 255, 0.5)" },   // 亮丽蓝
+  { bg: "rgba(0, 255, 68, 1.0)", shadow: "rgba(0, 255, 68, 0.4)" },     // 荧光绿
+  { bg: "rgba(255, 102, 0, 1.0)", shadow: "rgba(255, 102, 0, 0.5)" },   // 活力橙
+  { bg: "rgba(183, 0, 255, 1.0)", shadow: "rgba(183, 0, 255, 0.5)" }    // 赛博紫
+];
+
 interface PositionedItem extends MediaItem {
   x: number;
   y: number;
   originX: number;
   originY: number;
   zIndex: number;
+  jellyColor?: { bg: string; shadow: string }; // 新增果冻颜色属性
 }
 
 // 用于在兄弟组件之间进行高性能物理碰撞检测和位置同步的共享状态池
@@ -143,9 +153,9 @@ const DraggableItem = ({
 
   return (
     <div
-      className={`absolute flex flex-col items-center cursor-grab active:cursor-grabbing w-20 group select-none ${isDraggingState ? 'z-50' : ''}`}
+      // 将宽度放宽到 w-28 (112px)，以便长标题有更好的换行空间
+      className={`absolute flex flex-col items-center cursor-grab active:cursor-grabbing w-28 group select-none ${isDraggingState ? 'z-50' : ''}`}
       style={{
-        // 核心修改：去除了 scale()，仅保留位移动画，大小始终保持不变
         transform: `translate(${pos.x}px, ${pos.y}px)`,
         opacity: 1, 
         transition: isEntering 
@@ -161,7 +171,7 @@ const DraggableItem = ({
         onDoubleClick(item);
       }}
     >
-      <div className="relative w-16 h-16 bg-white rounded-xl shadow-md border-3 border-white flex items-center justify-center overflow-hidden group-hover:shadow-xl transition-shadow">
+      <div className="relative w-16 h-16 bg-white rounded-xl shadow-md border-3 border-white flex items-center justify-center overflow-hidden group-hover:shadow-xl transition-shadow flex-shrink-0">
         {item.type === "image" && (
           <img
             src={item.url}
@@ -183,9 +193,22 @@ const DraggableItem = ({
         )}
         {item.type === "other" && <FileBox className="w-6 h-6 text-gray-400" />}
       </div>
-      <span className="mt-2 text-sm text-black text-center px-1 font-sans font-bold">
-        {item.title}
-      </span>
+      
+      {/* 标题与果冻图标排版区 */}
+      <div className="mt-2 flex items-start justify-center gap-2 w-full px-1">
+        {item.isHighlight && item.jellyColor && (
+          <div 
+            className="flex-shrink-0 w-4 h-4 mt-[1px] rounded-full border border-white/20 backdrop-blur-md"
+            style={{
+              backgroundColor: item.jellyColor.bg,
+              boxShadow: `0 2px 4px ${item.jellyColor.shadow}, inset 0 2px 4px rgba(255,255,255,1.0), inset 0 -1px 2px rgba(0,0,0,0.1)`,
+            }}
+          />
+        )}
+        <span className="text-[12px] text-[#888] text-center font-sans font-bold leading-tight break-words overflow-hidden w-full">
+          {item.title}
+        </span>
+      </div>
     </div>
   );
 };
@@ -210,7 +233,12 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
     const centerX = width / 2;
     const centerY = height / 2;
     
-    const OFFSET = 40; 
+    // 获取屏幕比例，限制在极端比例下变形过猛
+    const aspectRatio = width / height;
+    const scaleX = Math.min(1.8, Math.max(0.6, Math.sqrt(aspectRatio)));
+    const scaleY = Math.min(1.8, Math.max(0.6, Math.sqrt(1 / aspectRatio)));
+    
+    const OFFSET = 56; // 因为宽度放宽到了w-28，中心偏移量做些调整
     const originX = centerX - OFFSET;
     const originY = centerY - OFFSET;
 
@@ -219,28 +247,34 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
 
     const newItems: PositionedItem[] = [];
 
-    // 1. 均匀分布 Highlight 元素
-    const columns = Math.ceil(Math.sqrt(highlights.length));
-    const gap = 90; 
-    const startX = centerX - ((columns - 1) * gap) / 2;
-    const startY = centerY - ((Math.ceil(highlights.length / columns) - 1) * gap) / 2;
+    // 1. 响应式分布 Highlight 元素 (根据屏幕比例决定行数和列数)
+    // 宽屏时列多行少，竖屏时行多列少
+    let rows = Math.max(1, Math.round(Math.sqrt(highlights.length / aspectRatio)));
+    let cols = Math.ceil(highlights.length / rows);
+    
+    const gapX = 110; 
+    const gapY = 110; 
+    const startX = centerX - ((cols - 1) * gapX) / 2;
+    const startY = centerY - ((rows - 1) * gapY) / 2;
 
     highlights.forEach((item, index) => {
-      const row = Math.floor(index / columns);
-      const col = index % columns;
+      const row = Math.floor(index / cols);
+      const col = index % cols;
       newItems.push({
         ...item,
-        x: startX + col * gap - OFFSET,
-        y: startY + row * gap - OFFSET,
+        x: startX + col * gapX - OFFSET,
+        y: startY + row * gapY - OFFSET,
         originX,
         originY,
         zIndex: 1,
+        // 给高亮元素随机分配果冻颜色
+        jellyColor: JELLY_COLORS[Math.floor(Math.random() * JELLY_COLORS.length)],
       });
     });
 
-    // 2. 普通元素环绕分布 (斐波那契螺旋)
+    // 2. 普通元素环绕分布 (拉伸后的斐波那契螺旋)
     const goldenAngle = 137.508 * (Math.PI / 180);
-    const spreadFactor = 20; 
+    const spreadFactor = 22; 
 
     normals.forEach((item, index) => {
       const radius = vacuumRadius + Math.sqrt(index) * spreadFactor;
@@ -249,8 +283,9 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
       const randomJitterX = (Math.random() - 0.5) * 40;
       const randomJitterY = (Math.random() - 0.5) * 40;
 
-      const x = centerX + radius * Math.cos(angle) + randomJitterX - OFFSET;
-      const y = centerY + radius * Math.sin(angle) + randomJitterY - OFFSET;
+      // 加入 scaleX 和 scaleY 系数，使得排布趋势迎合屏幕的长宽比
+      const x = centerX + (radius * Math.cos(angle) * scaleX) + randomJitterX - OFFSET;
+      const y = centerY + (radius * Math.sin(angle) * scaleY) + randomJitterY - OFFSET;
 
       newItems.push({
         ...item,
@@ -277,7 +312,7 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen bg-transparent"
+      className="relative w-full h-screen bg-transparent overflow-hidden"
     >
       {/* 渲染桌面元素 */}
       {positionedItems.map((item) => (
@@ -286,7 +321,7 @@ export default function MediaCanvas({ items, vacuumRadius = 250 }: MediaCanvasPr
           item={item}
           onDoubleClick={setActiveItem}
           onDragStart={handleDragStart}
-          physicsState={physicsState.current} // 将物理状态池传入
+          physicsState={physicsState.current} 
         />
       ))}
 
