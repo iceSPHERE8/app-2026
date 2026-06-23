@@ -26,7 +26,7 @@ export default function FeatureSection({ className = '' }: FeatureSectionProps) 
             text-justify & hyphens-auto: 实现图中的两端对齐和自动连字符效果
             注意: hyphens-auto 依赖于 HTML 标签上的 lang 属性 (如 lang="en") 才能最完美工作
           */}
-          <p className="font-table text-sm leading-none">
+          <p className="font-light text-sm leading-none tracking-wide">
             Autonomous Motion. Engineering GLSL shaders and GPGPU simulations via Houdini. We craft procedural systems where algorithmic logic creates relentless, evolving digital patterns.
           </p>
         </div>
@@ -36,7 +36,7 @@ export default function FeatureSection({ className = '' }: FeatureSectionProps) 
           <div className="h-20 mb-6 flex items-end">
             <SectionIcon2 className="w-auto h-16 object-contain" />
           </div>
-          <p className="font-table text-sm leading-none">
+          <p className="font-light text-sm leading-none tracking-wide">
             Cinematic Impact. High-fidelity 3D motion rendered in Redshift. Focused on physics-based animation and sharp digital aesthetics that command the visual landscape.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function FeatureSection({ className = '' }: FeatureSectionProps) 
           <div className="h-20 mb-6 flex items-end">
             <SectionIcon3 className="w-auto h-16 object-contain" />
           </div>
-          <p className="font-table text-sm leading-none">
+          <p className="font-light text-sm leading-none tracking-wide">
             Creative Coding. Building immersive Three.js experiences with React and TypeScript. We bridge technical art and full-stack performance to infect the web.
           </p>
         </div>

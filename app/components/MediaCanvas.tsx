@@ -205,7 +205,7 @@ const DraggableItem = ({
             }}
           />
         )}
-        <span className="text-[12px] text-[#888] text-center font-sans font-bold leading-tight break-words overflow-hidden w-full">
+        <span className="text-[12px] text-[#000000] text-center font-normal leading-tight break-words overflow-hidden w-full">
           {item.title}
         </span>
       </div>

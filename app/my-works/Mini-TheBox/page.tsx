@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import MediaCanvas, { MediaItem } from "@/app/components/MediaCanvas";
-import ImageStack from "@/app/components/ImageStack";
 
 export default function Page() {
   const router = useRouter();
@@ -43,7 +42,7 @@ export default function Page() {
       {/* 1. 顶部导航栏 (修改文字颜色为浅灰色) */}
       <div className="relative flex items-center justify-between px-12 w-full mt-auto z-50 h-10
           bg-[#C4C4C4]">
-        <span className="font-heading text-[#000000] tracking-[0.1em] leading-1 text-md uppercase">
+        <span className="font-bold text-[#000000] tracking-wide leading-1 text-md uppercase">
           MINI THEBOX-2024/
         </span>
         <button 
@@ -51,7 +50,7 @@ export default function Page() {
           className="/* 1. 核心外观：完全还原你最新发来的精致紧凑全圆角、单层细边框布局 */
     relative flex items-center justify-center
     px-2 py-1 rounded-full border border-[#a1a1a1]
-    text-[11px] leading-none font-table font-black uppercase cursor-pointer
+    text-[11px] leading-none font-normal uppercase cursor-pointer
     bg-gradient-to-b from-[#eaeaea] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.5)]
     
     /* 2. 常态文字颜色与背景清透感 */
@@ -85,7 +84,7 @@ export default function Page() {
         {/* 2.2 MediaCanvas 区域 (层级提升至 z-30，确保在 Z 轴最上方) */}
         <div className="absolute inset-0 w-full h-full z-30">
           {isLoading ? (
-            <div className="w-full h-full flex items-center justify-center font-table tracking-widest text-[#a1a1a1]/50">
+            <div className="w-full h-full flex items-center justify-center font-normal tracking-wide text-[#a1a1a1]/50">
               LOADING ASSETS...
             </div>
           ) : (

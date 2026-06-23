@@ -28,7 +28,7 @@ const LandingComponent: NextPage = () => {
     /* 1. 核心外观：完全还原你最新发来的精致紧凑全圆角、单层细边框布局 */
     relative flex items-center justify-center
     px-2 py-1 rounded-full border border-[#a1a1a1]
-    text-[11px] leading-none font-table font-black uppercase cursor-pointer
+    text-[11px] leading-none font-normal uppercase cursor-pointer tracking-widest
     bg-gradient-to-b from-[#eaeaea] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.5)]
     
     /* 2. 常态文字颜色与背景清透感 */
@@ -58,24 +58,24 @@ const LandingComponent: NextPage = () => {
       </Head>
 
       {/* 主容器 */}
-      <div className="min-h-120 flex flex-col bg-[#eaeaea] font-heading text-gray-950">
+      <div className="min-h-160 flex flex-col bg-[#eaeaea] font-bold text-gray-950">
         
         {/* Header：金属面板质感 */}
         <header className={`${metalPanelClass} h-10`}>
           <div className="flex items-center">
-            <span className={`font-black text-lg tracking-wide ${engravedTextClass}`}>
+            <span className={`font-bold text-lg tracking-wide ${engravedTextClass}`}>
               BADBUG.STUDIO
             </span>
           </div>
           
           <div className="flex items-center text-center">
-            <span className={`font-table text-xs font-black tracking-widest ${metalTagClass}`}>
+            <span className={`text-sm font-normal tracking-widest ${metalTagClass}`}>
               SINCE 2022
             </span>
           </div>
           
           <div className="flex items-center text-center">
-            <span className={`font-extrabold text-[13px] tracking-[0.2em] uppercase ${engravedTextClass}`}>
+            <span className={`font-normal text-xs tracking-widest uppercase ${engravedTextClass}`}>
               Interactive Coding \ CG Art \ Motion
             </span>
           </div>
@@ -108,7 +108,7 @@ const LandingComponent: NextPage = () => {
           </div>
           
           <div className="flex items-center text-center">
-            <span className={`font-table font-bold text-xs tracking-widest uppercase ${engravedTextClass}`}>
+            <span className={`font-normal text-xs tracking-widest uppercase ${engravedTextClass}`}>
               P5 \ ThreeJS \ Blender \ Houdini
             </span>
           </div>
@@ -121,8 +121,8 @@ const LandingComponent: NextPage = () => {
           </div>
           
           <div className="flex items-center text-right">
-            <span className={`font-table font-bold text-xs tracking-wider uppercase ${engravedTextClass}`}>
-              Mail to: <span className="font-heading ml-1 tracking-normal">ice.sphere8@outlook.com</span>
+            <span className={`font-normal text-xs tracking-wider uppercase ${engravedTextClass}`}>
+              Mail to: <span className="font-bold ml-1 tracking-normal">ice.sphere8@outlook.com</span>
             </span>
           </div>
         </footer>

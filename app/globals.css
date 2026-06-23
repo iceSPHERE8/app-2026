@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "sarasamono";
-  src: url("/fonts/SarasaMonoSC-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
+  font-family: "helvetica";
+  src: url("/fonts/HelveticaNeueLTPro-HvEx.woff2") format("woff2");
+  font-weight: 700;
+  font-style: bold;
   /* 
      如果你希望“一开始就是这个字体”，将 swap 改为 block。
      虽然会有短暂白屏，但绝不会有字体跳变。
@@ -13,34 +13,26 @@
 }
 
 @font-face {
-  font-family: "sarasamono";
-  src: url("/fonts/SarasaMonoSC-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: bold;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "agrandir";
-  src: url("/fonts/Agrandir-GrandHeavy.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: block;
-}
-
-@font-face {
-  font-family: "agrandir-light";
-  src: url("/fonts/Agrandir-GrandLight.woff2") format("woff2");
+  font-family: "helvetica";
+  src: url("/fonts/HelveticaNeueLTPro-Ex.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: block;
 }
 
+@font-face {
+  font-family: "helvetica";
+  src: url("/fonts/HelveticaNeueLTPro-ThEx.woff2") format("woff2");
+  font-weight: 400;
+  font-style: light;
+  font-display: block;
+}
+
 @theme {
   /* 确保 sarasamono 排在最前面 */
-  --font-sans: "sarasamono", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "agrandir", sans-serif;
-  --font-table: "agrandir-light", sans-serif;
+  --font-sans: "helvetica", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "helvetica", sans-serif;
+  --font-table: "helvetica", sans-serif;
   --background: #eaeaea;
 }
 

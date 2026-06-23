@@ -33,9 +33,11 @@
     "content": "/uploads/1781549437371.mp4",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "aspectRatio": "aspect-[3/4]",
+    "aspectRatio": "aspect-auto",
     "renderMode": "cover",
-    "textBgUrl": ""
+    "textBgUrl": "",
+    "imageList": [],
+    "updatedAt": "2026-06-22T15:59:02.335Z"
   },
   {
     "id": "1781087091376",
@@ -63,9 +65,11 @@
     "content": "/uploads/1780902118123.mp4",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "aspectRatio": "aspect-[4/5]",
+    "aspectRatio": "aspect-auto",
     "renderMode": "cover",
-    "textBgUrl": ""
+    "textBgUrl": "",
+    "imageList": [],
+    "updatedAt": "2026-06-22T16:05:06.983Z"
   },
   {
     "id": "1780655006004",
@@ -125,25 +129,28 @@
     "content": "/uploads/1780654276166.mp4",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "aspectRatio": "aspect-[4/5]",
+    "aspectRatio": "aspect-auto",
     "renderMode": "cover",
-    "textBgUrl": ""
+    "textBgUrl": "",
+    "imageList": [],
+    "updatedAt": "2026-06-22T16:04:57.868Z"
   },
   {
     "id": "1780653669043",
     "createdAt": "2026-06-05T10:01:09.043Z",
     "title": "BUSHES Sport-1",
     "description": "",
-    "detailLink": "",
+    "detailLink": "/my-works/bushes-sport",
     "type": "video",
     "category": "project",
     "content": "/uploads/1780653627637.mp4",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "aspectRatio": "aspect-[3/4]",
+    "aspectRatio": "aspect-auto",
     "renderMode": "cover",
     "textBgUrl": "",
-    "updatedAt": "2026-06-05T10:04:36.640Z"
+    "updatedAt": "2026-06-22T16:28:42.755Z",
+    "imageList": []
   },
   {
     "id": "1780507897821",
@@ -204,10 +211,11 @@
     "content": "/uploads/1780483973253.mp4",
     "coverUrl": "",
     "previewVideoUrl": "",
-    "aspectRatio": "aspect-[3/4]",
+    "aspectRatio": "aspect-auto",
     "renderMode": "cover",
     "textBgUrl": "",
-    "updatedAt": "2026-06-10T08:54:25.930Z"
+    "updatedAt": "2026-06-22T16:04:52.464Z",
+    "imageList": []
   },
   {
     "id": "1780483804506",
