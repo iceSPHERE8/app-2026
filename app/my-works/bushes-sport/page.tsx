@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import TamagochiScene from "./component/tamagochi";
-import DancingScene from "./component/dancing";
-import ClothScene from "./component/cloth"; // 🌟 引入新的布料场景
+import TamagochiScene from "./components/tamagochi";
+import DancingScene from "./components/dancing";
+import ClothScene from "./components/cloth"; // 🌟 引入新的布料场景
 
 export default function Page() {
   const [currentIndex, setCurrentIndex] = useState(0);
