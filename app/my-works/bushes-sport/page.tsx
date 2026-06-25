@@ -5,7 +5,11 @@ import TamagochiScene from "./components/tamagochi";
 import DancingScene from "./components/dancing";
 import ClothScene from "./components/cloth"; // 🌟 引入新的布料场景
 
+import { useProjectTracker } from "@/app/hooks/useProjectTracker";
+
 export default function Page() {
+  useProjectTracker('Bushes-Sport');
+
   const [currentIndex, setCurrentIndex] = useState(0);
   
   // 🌟 场景总数变更为 3

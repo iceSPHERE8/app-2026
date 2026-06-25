@@ -4,7 +4,11 @@ import Image from "next/image";
 import SdfHeatmapVideo from "./components/SdfHeatmapVideo";
 import AsicsFanScene from "./components/AsicsFanScene";
 
+import { useProjectTracker } from "@/app/hooks/useProjectTracker";
+
 export default function HeatmapPage() {
+    useProjectTracker('Bushes-Sport');
+
     return (
         <main className="bg-[#eaeaea] flex flex-col items-center">
             <div className="relative flex items-center justify-between px-12 w-full z-50 h-10 bg-[#C4C4C4] shrink-0">

@@ -27,11 +27,6 @@ import {
 
 const menuItems = [
     {
-        title: "数据分析",
-        icon: LayoutDashboard,
-        id: "analytics",
-    },
-    {
         title: "作品管理", // 建议改为管理
         icon: UploadCloud,
         id: "upload",
@@ -41,7 +36,7 @@ const menuItems = [
         ],
     },
     {
-        title: "首页设置",
+        title: "详细设置",
         icon: Settings,
         id: "home-settings",
     },

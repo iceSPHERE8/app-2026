@@ -278,6 +278,7 @@ export default function WorkManager({
                             <div className="space-y-2 md:col-span-1">
                                 <label className="text-sm font-medium">瀑布流卡片比例 (Aspect Ratio)</label>
                                 <select
+                                    title="seletc aspect ratio"
                                     className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                     value={formData.aspectRatio}
                                     onChange={(e) => setFormData({ ...formData, aspectRatio: e.target.value })}
@@ -294,6 +295,7 @@ export default function WorkManager({
                             <div className="space-y-2 md:col-span-1">
                                 <label className="text-sm font-medium">作品分类 (Category)</label>
                                 <select
+                                    title="seletc works type"
                                     className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                     value={formData.category}
                                     onChange={(e) => setFormData({ ...formData, category: e.target.value as CategoryType })}
@@ -341,6 +343,7 @@ export default function WorkManager({
                                         </div>
                                     )}
                                     <input
+                                        title="file upload"
                                         type="file"
                                         ref={contentInputRef}
                                         className="hidden"
@@ -362,6 +365,7 @@ export default function WorkManager({
                                             {uploading === "imageList" ? "上传中，请稍候..." : "点击上传多张图片 (支持按住 Ctrl/Cmd 批量选择)"}
                                         </p>
                                         <input
+                                            title="file upload"
                                             type="file"
                                             multiple // 核心属性：允许选择多文件
                                             ref={imageListInputRef}
@@ -422,6 +426,7 @@ export default function WorkManager({
                                             <MonitorPlay className="h-4 w-4" /> 瀑布流渲染模式 (Render Mode)
                                         </label>
                                         <select
+                                            title="seletc render mode"
                                             className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                             value={formData.renderMode}
                                             onChange={(e) => setFormData({ ...formData, renderMode: e.target.value as RenderMode })}
@@ -456,6 +461,7 @@ export default function WorkManager({
                                                 {formData.textBgUrl ? "✅ 文字背景图已上传" : "点击上传背景图片 (营造氛围)"}
                                             </p>
                                             <input
+                                                title="file upload"
                                                 type="file"
                                                 ref={textBgInputRef}
                                                 className="hidden"
@@ -498,6 +504,7 @@ export default function WorkManager({
                                             {formData.previewVideoUrl ? "✅ 悬停预览视频已就绪" : "上传悬停预览 (视频)"}
                                         </p>
                                         <input
+                                            title="file upload"
                                             type="file"
                                             ref={videoInputRef}
                                             className="hidden"
@@ -513,6 +520,7 @@ export default function WorkManager({
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">作品标题</label>
                                 <input
+                                    title="title"
                                     className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -521,6 +529,7 @@ export default function WorkManager({
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">简要描述</label>
                                 <textarea
+                                    title="description"
                                     className="w-full min-h-[80px] rounded-md border bg-background px-3 py-2 text-sm focus:ring-2 ring-primary/20 outline-none"
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -590,15 +599,15 @@ export default function WorkManager({
                                         ) : 
                                         /* 2. 优先显示手动上传的 Cover */
                                         item.coverUrl ? (
-                                            <img src={item.coverUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
+                                            <img title="uploaded cover" src={item.coverUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
                                         ) : 
                                         /* 3. 是单图但没封面，拿原图撑满 */
                                         item.type === 'image' && item.content ? (
-                                            <img src={item.content} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
+                                            <img title="original cover" src={item.content} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
                                         ) : 
                                         /* 4. 是图集，拿列表第一张撑满 */
                                         listFrameUrl ? (
-                                            <img src={listFrameUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
+                                            <img title="first cover" src={listFrameUrl} className="absolute inset-0 object-cover w-full h-full opacity-60 group-hover:opacity-100 transition-all duration-500 z-10" />
                                         ) :
                                         /* 5. 没有封面，但是有视频 URL 时，截取第一帧撑满 */
                                         videoFrameUrl ? (

@@ -3,7 +3,15 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { ExternalLink, ChevronDown, ChevronLeft, ChevronRight, Images } from "lucide-react";
 
-// --- 1. 数据类型定义 ---
+// 声明全局 umami 类型，避免 TS 报错
+declare global {
+    interface Window {
+        umami: {
+            track: (eventName: string, eventData?: Record<string, any>) => void;
+        }
+    }
+}
+
 type MediaType = "image" | "image-list" | "video" | "p5" | "glsl" | "3d" | "text";
 type RenderMode = "cover" | "direct";
 
@@ -16,7 +24,7 @@ interface ShowcaseItem {
     type: MediaType;
     category?: string;
     content?: string;
-    imageList?: string[]; // 存储多图URL的数组
+    imageList?: string[];
     coverUrl?: string;
     previewVideoUrl?: string;
     aspectRatio: string;
@@ -34,7 +42,6 @@ const aspectClassMap: Record<string, string> = {
     "aspect-auto": "aspect-auto",
 };
 
-// --- 2. 全屏媒体查看器组件 ---
 const FullScreenViewer = ({
     item,
     onClose,
@@ -44,12 +51,30 @@ const FullScreenViewer = ({
 }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // 当打开新的 item 时，重置索引
+    // Umami 埋点：监听弹窗的打开与关闭，记录播放及停留时长
+    useEffect(() => {
+        if (!item) return;
+        
+        const startTime = Date.now();
+        const projectName = item.title || "未命名作品";
+
+        if (typeof window !== 'undefined' && window.umami) {
+            window.umami.track('查看作品', { project: projectName, action: '打开弹窗' });
+        }
+
+        return () => {
+            const duration = Math.round((Date.now() - startTime) / 1000);
+            if (typeof window !== 'undefined' && window.umami && duration > 2) {
+                window.umami.track('作品停留', { project: projectName, duration });
+            }
+        };
+    }, [item]);
+
     useEffect(() => {
         setCurrentIndex(0);
     }, [item]);
 
-    // 支持键盘左右键切换
+    // 键盘切换逻辑
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!item || item.type !== "image-list" || !item.imageList) return;
@@ -84,7 +109,6 @@ const FullScreenViewer = ({
             className="fixed inset-0 z-100 flex items-center justify-center bg-black/95 backdrop-blur-md p-4 md:p-8 transition-all duration-300"
             onClick={onClose}
         >
-            {/* 关闭按钮 */}
             <button
                 className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50"
                 onClick={onClose}
@@ -97,27 +121,23 @@ const FullScreenViewer = ({
             </button>
 
             <div className="relative w-full h-full flex items-center justify-center group" onClick={(e) => e.stopPropagation()}>
-                {/* 单图渲染 */}
                 {item.type === "image" && item.content && (
                     <img src={item.content} alt="Fullscreen view" className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-300" />
                 )}
 
-                {/* 视频渲染 */}
                 {item.type === "video" && item.content && (
                     <video src={item.content} controls autoPlay className="max-w-full max-h-full outline-none animate-in fade-in zoom-in duration-300" />
                 )}
 
-                {/* --- 多图轮播渲染 --- */}
                 {isList && (
                     <>
                         <img 
-                            key={currentIndex} // 使用 key 强制重新挂载触发动画
+                            key={currentIndex}
                             src={item.imageList![currentIndex]} 
                             alt={`Fullscreen view ${currentIndex + 1}`} 
                             className="max-w-full max-h-full object-contain animate-in fade-in duration-300" 
                         />
                         
-                        {/* 左右切换按钮 */}
                         {item.imageList!.length > 1 && (
                             <>
                                 <button onClick={handlePrev} title="prev" className="absolute left-4 md:left-12 p-3 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-all backdrop-blur opacity-0 group-hover:opacity-100">
@@ -127,7 +147,6 @@ const FullScreenViewer = ({
                                     <ChevronRight className="w-8 h-8" />
                                 </button>
                                 
-                                {/* 底部指示器 */}
                                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/60 backdrop-blur text-white/80 text-xs font-mono tracking-widest">
                                     {currentIndex + 1} / {item.imageList!.length}
                                 </div>
@@ -140,7 +159,6 @@ const FullScreenViewer = ({
     );
 };
 
-// --- 3. 拟物化下拉菜单组件 ---
 const SkeuomorphicDropdown = ({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (val: string) => void; }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -187,7 +205,6 @@ const SkeuomorphicDropdown = ({ label, options, value, onChange }: { label: stri
     );
 };
 
-// --- 4. 渲染单个卡片组件 ---
 const MediaCard = ({
     item,
     onOpenFullscreen,
@@ -195,39 +212,31 @@ const MediaCard = ({
     item: ShowcaseItem;
     onOpenFullscreen: (item: ShowcaseItem) => void;
 }) => {
-    // 用于控制整体卡片骨架屏加载状态（以第一张图加载为准）
     const [isLoaded, setIsLoaded] = useState(item.type === "text");
     const [currentImgIndex, setCurrentImgIndex] = useState(0);
-    // 记录鼠标是否悬停在卡片上，用于控制自动播放的暂停与恢复
     const [isHovered, setIsHovered] = useState(false);
 
     const aspectClass = aspectClassMap[item.aspectRatio] || "aspect-square";
     const isAutoAspect = aspectClass === "aspect-auto";
-
     const videoUrl = item.previewVideoUrl || (item.type === "video" ? item.content : null);
     const isInteractiveType = item.type === "3d" || item.type === "glsl" || item.type === "p5";
     const showIframe = isInteractiveType && item.renderMode === "direct";
     const showCover = !isInteractiveType || item.renderMode !== "direct";
-
     const targetUrl = item.detailLink || (isInteractiveType ? item.content : null);
     const hasLink = !!targetUrl;
 
-    // --- CSS 类名推导 ---
     const coverContainerClass = isAutoAspect
         ? "relative w-full transition-opacity duration-700 z-10" 
         : "absolute inset-0 w-full h-full transition-opacity duration-700 z-10";
 
-    // 用于滑动轨道的图片样式
     const sliderImageClass = isAutoAspect
-        ? "w-full h-auto object-cover block flex-shrink-0" // auto 模式下依靠图片高度撑开
-        : "w-full h-full object-cover flex-shrink-0";      // 固定比例模式下填满轨道高度
+        ? "w-full h-auto object-cover block flex-shrink-0"
+        : "w-full h-full object-cover flex-shrink-0";      
 
-    // 💡 新增：用于解决 video 和单张 image 在 auto 模式下绝对定位塌陷的问题
     const singleMediaClass = isAutoAspect
         ? "w-full h-auto object-cover block" 
         : "absolute inset-0 w-full h-full object-cover";
 
-    // --- Effect: 自动轮播 (时间延长到 3s) ---
     useEffect(() => {
         if (item.type !== "image-list" || !item.imageList || item.imageList.length <= 1) return;
         if (isHovered) return;
@@ -241,7 +250,6 @@ const MediaCard = ({
         return () => clearInterval(timer);
     }, [item.type, item.imageList, isHovered]);
 
-    // 处理骨架屏加载状态
     useEffect(() => {
         if (item.type !== "text" && showCover) {
             const hasMedia = videoUrl || item.coverUrl || (item.type === "image" && item.content) || (item.type === "image-list" && item.imageList?.length);
@@ -249,9 +257,14 @@ const MediaCard = ({
         }
     }, [item.type, showCover, videoUrl, item.coverUrl, item.content, item.imageList]);
 
-    // --- 交互操作 ---
+    // 卡片埋点相关交互
     const handleCardClick = () => {
+        const projectName = item.title || "未命名作品";
+        
         if (hasLink && targetUrl) {
+            if (typeof window !== 'undefined' && window.umami) {
+                window.umami.track('查看作品', { project: projectName, action: '页面跳转' });
+            }
             window.open(targetUrl, "_blank");
         } else if (item.type === "image" || item.type === "video" || item.type === "image-list") {
             onOpenFullscreen(item);
@@ -260,6 +273,9 @@ const MediaCard = ({
 
     const handleIconJump = (e: React.MouseEvent) => {
         e.stopPropagation();
+        if (typeof window !== 'undefined' && window.umami) {
+            window.umami.track('查看作品', { project: item.title || "未命名作品", action: '页面跳转' });
+        }
         if (targetUrl) window.open(targetUrl, "_blank");
     };
 
@@ -293,7 +309,6 @@ const MediaCard = ({
                                 <div className="relative z-10 font-heading text-2xl font-black text-[#eaeaea] uppercase leading-tight">{item.content}</div>
                             </div>
                         ) : videoUrl ? (
-                            // 💡 应用 singleMediaClass
                             <video src={videoUrl} autoPlay muted loop playsInline className={singleMediaClass} onLoadedData={() => setIsLoaded(true)} />
                         ) : item.type === "image-list" && item.imageList && item.imageList.length > 0 ? (
                             <div 
@@ -301,9 +316,7 @@ const MediaCard = ({
                                 onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}
                             >
-                                {/* 裁剪视口 */}
                                 <div className={`w-full overflow-hidden ${isAutoAspect ? '' : 'h-full'}`}>
-                                    {/* 滑动轨道：增加平滑的 Transition */}
                                     <div 
                                         className="flex h-full transition-transform duration-500 ease-out"
                                         style={{ transform: `translateX(-${currentImgIndex * 100}%)` }}
@@ -320,7 +333,6 @@ const MediaCard = ({
                                     </div>
                                 </div>
                                 
-                                {/* 左右切换按钮 */}
                                 {item.imageList.length > 1 && (
                                     <>
                                         <div className="absolute inset-0 bg-linear-to-b from-black/0 via-transparent to-black/40 opacity-0 group-hover/slider:opacity-100 transition-opacity pointer-events-none" />
@@ -332,7 +344,6 @@ const MediaCard = ({
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
 
-                                        {/* 底部小点点 UI */}
                                         <div className="absolute bottom-6 left-0 right-0 flex justify-center items-center gap-2 z-20">
                                             {item.imageList.map((_, idx) => (
                                                 <button
@@ -359,10 +370,8 @@ const MediaCard = ({
                                 )}
                             </div>
                         ) : item.coverUrl ? (
-                            // 💡 应用 singleMediaClass
                             <img src={item.coverUrl} alt={item.title || "artwork"} className={singleMediaClass} onLoad={() => setIsLoaded(true)} />
                         ) : item.type === "image" && item.content ? (
-                            // 💡 应用 singleMediaClass
                             <img src={item.content} alt={item.title || "artwork"} className={singleMediaClass} onLoad={() => setIsLoaded(true)} />
                         ) : (
                             <div className={`${isAutoAspect ? 'relative min-h-50' : 'absolute inset-0 h-full'} w-full flex flex-col items-center justify-center text-zinc-800 bg-[#0a0a0a]`}>
@@ -397,7 +406,6 @@ const MediaCard = ({
     );
 };
 
-// --- 5. 主瀑布流组件 ---
 export default function WaterfallGallery() {
     const [items, setItems] = useState<ShowcaseItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -464,7 +472,6 @@ export default function WaterfallGallery() {
     return (
         <>
             <section className="w-full min-h-screen px-4 md:px-8 py-12 flex flex-col items-center">
-                {/* --- 顶部过滤器面板 --- */}
                 <div className="w-full flex flex-wrap justify-start border-[#8b8b8b] pb-4 items-end gap-9 select-none">
                     <SkeuomorphicDropdown
                         label="(by Category:"
@@ -491,7 +498,6 @@ export default function WaterfallGallery() {
                     </div>
                 </div>
 
-                {/* --- 画廊主体 --- */}
                 {filteredItems.length > 0 ? (
                     <div className="w-full columns-2 sm:columns-2 lg:columns-4 xl:columns-5 gap-6 transition-all duration-500">
                         {visibleItems.map((item) => (

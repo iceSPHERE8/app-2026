@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import MediaCanvas, { MediaItem } from "@/app/components/MediaCanvas";
 
+import { useProjectTracker } from "@/app/hooks/useProjectTracker";
+
 export default function Page() {
+  useProjectTracker('Bushes-Sport');
+  
   const router = useRouter();
   const params = useParams(); 
   

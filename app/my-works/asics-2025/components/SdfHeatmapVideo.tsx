@@ -281,7 +281,7 @@ export default function ChromaColorama() {
                         loop
                         muted
                         playsInline
-                        crossOrigin="Anonymous"
+                        crossOrigin="anonymous"
                         className="absolute top-0 left-0 w-1/4 aspect-square object-cover z-20 pointer-events-none"
                     />
 
@@ -318,6 +318,7 @@ export default function ChromaColorama() {
                                 </span>
                                 <div className="w-6 h-6 border border-[#a1a1a1] overflow-hidden flex items-center justify-center">
                                     <input
+                                        title="bg color"
                                         type="color"
                                         value={params.bgColor}
                                         onChange={(e) =>
@@ -341,6 +342,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="mask threshold"
                                     type="range"
                                     min="0"
                                     max="0.5"
@@ -366,6 +368,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="mask feather"
                                     type="range"
                                     min="0"
                                     max="0.5"
@@ -399,6 +402,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="blur"
                                     type="range"
                                     min="0"
                                     max="0.05"
@@ -424,6 +428,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="black point"
                                     type="range"
                                     min="0"
                                     max="1"
@@ -449,6 +454,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="white point"
                                     type="range"
                                     min="0"
                                     max="1"
@@ -472,6 +478,7 @@ export default function ChromaColorama() {
                                     </span>
                                 </div>
                                 <input
+                                    title="phase"
                                     type="range"
                                     min="0"
                                     max="1"
