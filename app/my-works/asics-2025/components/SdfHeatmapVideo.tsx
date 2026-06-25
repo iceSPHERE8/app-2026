@@ -273,18 +273,6 @@ export default function ChromaColorama() {
                 
                 {/* 左侧画布容器 */}
                 <div className="aspect-square h-full bg-black shrink-0 relative">
-                    
-                    {/* --- 新增：左上角原视频参考画面 --- */}
-                    <video
-                        src={videoPath}
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        crossOrigin="anonymous"
-                        className="absolute top-0 left-0 w-1/4 aspect-square object-cover z-20 pointer-events-none"
-                    />
-
                     <Canvas
                         orthographic
                         camera={{ position: [0, 0, 1], zoom: 100 }}

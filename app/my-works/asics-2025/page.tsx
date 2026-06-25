@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import SdfHeatmapVideo from "./components/SdfHeatmapVideo";
-import AsicsFanScene from "./components/AsicsFanScene";
 
 import { useProjectTracker } from "@/app/hooks/useProjectTracker";
 
@@ -68,20 +67,16 @@ export default function HeatmapPage() {
                 />
             </div>
 
-            <div className="w-full max-w-[1200px] mt-10 mb-20 flex flex-col md:flex-row items-stretch gap-4">
-                <div className="flex-1 w-full overflow-hidden relative min-h-[300px]">
-                    <AsicsFanScene />
-                </div>
-
-                <div className="w-full md:w-[35%] shrink-0 overflow-hidden flex flex-col">
-                    <Image
-                        src="/asics-2025/fan-mockup.png"
-                        alt="Fan Mockup"
-                        width={926}
-                        height={1392}
-                        className="w-full h-auto block object-cover"
-                    />
-                </div>
+            <div className="w-full max-w-[1200px] mt-10 mb-20 bg-black/5 overflow-hidden shadow-sm">
+                <video
+                    src={"/asics-2025/mockup-comp-v2.mp4"}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    controls
+                    className="w-full h-auto pointer-events-none select-none block"
+                />
             </div>
         </main>
     );

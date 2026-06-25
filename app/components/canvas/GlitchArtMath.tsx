@@ -145,7 +145,7 @@ export default function GenerativeArchitect({ controls }: { controls: any }) {
     <div className="w-full h-full">
       <Canvas camera={{ position: [0, 0, 80], fov: 45 }}>
         <SymmetricalArt controls={controls} />
-        <OrbitControls enableZoom={true} maxDistance={250} minDistance={10} />
+        
       </Canvas>
     </div>
   );

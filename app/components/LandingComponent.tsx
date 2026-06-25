@@ -48,9 +48,9 @@ const LandingComponent: NextPage = () => {
         {/* === 3. 展开/折叠触发器 (物理存在于文档流中) === */}
         <button 
           onClick={() => setIsUiVisible(!isUiVisible)}
-          className="w-full flex-shrink-0 bg-[#060608] border-t border-b border-[#222233] text-[#60e0ff] text-[9px] py-1.5 uppercase font-bold tracking-widest hover:bg-[#12121a] hover:text-white transition-colors duration-300 outline-none flex items-center justify-center cursor-pointer"
+          className="w-full flex-shrink-0 bg-[#eaeaea] text-black text-[9px] py-1.5 uppercase font-bold tracking-widest transition-colors duration-300 outline-none flex items-center justify-center cursor-pointer"
         >
-          {isUiVisible ? '▼ Hide Control Panel' : '▲ Open Control Panel'}
+          {isUiVisible ? 'Hide Control Panel' : 'Open Control Panel'}
         </button>
 
         {/* === 4. 独立出来的控制面板 === */}
