@@ -11,10 +11,9 @@ export const initialControls = {
   colorWhite: '#ffffff', colorShadow: '#0a0d14', colorAccent: '#767676', colorGrid: '#222233', colorGridDot: '#88aaff',
 };
 
-// --- 2. 基础 UI 控件 ---
+// --- 2. 基础 UI 控件（完全保留原始样式和结构） ---
 const SliderControl = ({ label, value, min, max, step = 0.01, onChange, compact }: any) => (
   <div className={`flex ${compact ? 'flex-col gap-1.5' : 'items-center gap-2'} w-full`}>
-    {/* 加宽了非 compact 状态下的宽度到 w-20 确保冒号显示，全局添加空格和冒号 */}
     <span className={`text-[10px] font-normal text-black ${compact ? 'w-full' : 'w-20'} truncate`} title={label}>
       {label} :
     </span>
@@ -28,7 +27,6 @@ const SliderControl = ({ label, value, min, max, step = 0.01, onChange, compact 
 );
 
 const ColorControl = ({ label, value, onChange, compact }: any) => (
-  // 增加 items-center 确保纵向居中对齐
   <div className={`flex items-center ${compact ? 'justify-between' : 'gap-2'} w-full`}>
     <span className={`text-[10px] font-normal text-black ${compact ? 'truncate' : 'w-20 truncate'}`} title={label}>
       {label} :
@@ -45,9 +43,9 @@ const ColorControl = ({ label, value, onChange, compact }: any) => (
 );
 
 const PanelGroup = ({ title, children }: any) => (
-  <div className="flex-1 min-w-[150px] flex flex-col gap-2 p-3 bg-[#c4c4c4]">
+  <div className="w-full md:flex-1 md:min-w-[150px] flex flex-col gap-2 p-3 bg-[#c4c4c4]">
     <h3 className="text-[10px] font-bold text-black uppercase tracking-wider">{title}</h3>
-    <div className="flex flex-col gap-2 overflow-y-auto pr-4 custom-scroll">
+    <div className="flex flex-col gap-2 md:overflow-y-auto md:pr-4 custom-scroll">
       {children}
     </div>
   </div>
@@ -58,6 +56,7 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
   return (
     <>
       <style>{`
+        /* 保留全部原始复古样式不变 */
         .clean-slider {
           -webkit-appearance: none;
           appearance: none;
@@ -113,11 +112,15 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
         }
       `}</style>
 
+      {/* 修改点：
+        1. 外层加入 overflow-y-auto（移动端开启内部垂直滚动），并在 PC 端（md）恢复 overflow-hidden。
+        2. 高度从 2000px 改为 65dvh（视口高度的65%），确保在手机上 UI 不会将页面撑爆，而是内部自适应滚动。
+      */}
       <div 
-        className="w-full bg-[#a8a8a8] overflow-hidden transition-[height] duration-300 ease-in-out flex-shrink-0 border-b border-[#888]"
-        style={{ height: isUiVisible ? '240px' : '0px' }}
+        className="w-full bg-[#a8a8a8] transition-[max-height] duration-300 ease-in-out flex-shrink-0 border-b border-[#888] overflow-y-auto md:overflow-hidden custom-scroll"
+        style={{ maxHeight: isUiVisible ? '65dvh' : '0px' }} 
       >
-        <div className="h-[240px] w-full pt-4 px-4 pb-6 flex flex-nowrap gap-3 items-stretch overflow-x-auto custom-scroll">
+        <div className="h-auto md:h-[240px] w-full pt-4 px-4 pb-6 flex flex-col md:flex-row flex-nowrap gap-3 items-stretch overflow-y-visible md:overflow-x-auto custom-scroll">
           
           <PanelGroup title="Anim">
             <SliderControl label="Speed" value={controls.globalSpeed} min={0} max={3} onChange={(v:any)=>updateControl('globalSpeed',v)} />
@@ -167,7 +170,6 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
           </PanelGroup>
 
           <PanelGroup title="Colors">
-            {/* 基础颜色区域：将 Grid Dot 放入网格中，并启用 compact */}
             <div className="grid grid-cols-2 gap-x-3 gap-y-3 w-full">
               <ColorControl label="White" value={controls.colorWhite} onChange={(v:any)=>updateControl('colorWhite',v)} compact />
               <ColorControl label="Shadow" value={controls.colorShadow} onChange={(v:any)=>updateControl('colorShadow',v)} compact />
@@ -176,10 +178,8 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
               <ColorControl label="Grid Dot" value={controls.colorGridDot} onChange={(v:any)=>updateControl('colorGridDot',v)} compact />
             </div>
             
-            {/* 分隔线 */}
             <div className="w-full h-[1px] bg-[#8a8a8a] my-1"></div>
             
-            {/* Glow 渐变颜色区域 */}
             <div className="grid grid-cols-2 gap-x-3 gap-y-3 w-full">
               <ColorControl label="Color 1" value={controls.gradColor1} onChange={(v:any)=>updateControl('gradColor1',v)} compact />
               <ColorControl label="Color 2" value={controls.gradColor2} onChange={(v:any)=>updateControl('gradColor2',v)} compact />

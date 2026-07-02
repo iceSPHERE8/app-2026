@@ -80,85 +80,86 @@ const fragmentShader = `
 `;
 
 function InteractiveCloth() {
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // 🌟 替换为你指定的视频资源
-  const videoTexture = useVideoTexture("/bushes-sport/bushes-sports-b.mp4");
+    const materialRef = useRef<THREE.ShaderMaterial>(null);
+    const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    if (videoTexture) {
-      videoTexture.flipY = true;
-      videoTexture.colorSpace = THREE.SRGBColorSpace;
-    }
-  }, [videoTexture]);
+    // 🌟 替换为你指定的视频资源
+    const videoTexture = useVideoTexture("/bushes-sport/bushes-sports-b.mp4");
 
-  useFrame((state, delta) => {
-    if (materialRef.current) {
-      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
-      
-      const targetHover = isHovered ? 1.0 : 0.0;
-      materialRef.current.uniforms.uHover.value = THREE.MathUtils.lerp(
-        materialRef.current.uniforms.uHover.value, 
-        targetHover, 
-        10 * delta
-      );
-    }
-  });
+    useEffect(() => {
+        if (videoTexture) {
+            videoTexture.flipY = true;
+            videoTexture.colorSpace = THREE.SRGBColorSpace;
+        }
+    }, [videoTexture]);
 
-  const handlePointerMove = (e: any) => {
-    if (materialRef.current && e.uv) {
-      materialRef.current.uniforms.uMouse.value.set(e.uv.x, e.uv.y);
-    }
-  };
+    useFrame((state, delta) => {
+        if (materialRef.current) {
+            materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
 
-  return (
-    <mesh 
-      onPointerOver={() => setIsHovered(true)}
-      onPointerOut={() => setIsHovered(false)}
-      onPointerMove={handlePointerMove}
-      // 稍微倾斜一点角度，让下垂感更明显
-      rotation={[0, 0, 0]} 
-    >
-      {/* 提高细分数到 128x128，使布料的高频褶皱和鼠标交互更加细腻 */}
-      <planeGeometry args={[3, 4, 128, 128]} />
-      
-      <shaderMaterial
-        ref={materialRef}
-        vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
-        side={THREE.DoubleSide}
-        uniforms={{
-          uTime: { value: 0 },
-          uTexture: { value: videoTexture },
-          uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-          uHover: { value: 0 }
-        }}
-      />
-    </mesh>
-  );
+            const targetHover = isHovered ? 1.0 : 0.0;
+            materialRef.current.uniforms.uHover.value = THREE.MathUtils.lerp(
+                materialRef.current.uniforms.uHover.value,
+                targetHover,
+                10 * delta,
+            );
+        }
+    });
+
+    const handlePointerMove = (e: any) => {
+        if (materialRef.current && e.uv) {
+            materialRef.current.uniforms.uMouse.value.set(e.uv.x, e.uv.y);
+        }
+    };
+
+    return (
+        <mesh
+            onPointerOver={() => setIsHovered(true)}
+            onPointerOut={() => setIsHovered(false)}
+            onPointerMove={handlePointerMove}
+            // 稍微倾斜一点角度，让下垂感更明显
+            rotation={[0, 0, 0]}
+        >
+            {/* 提高细分数到 128x128，使布料的高频褶皱和鼠标交互更加细腻 */}
+            <planeGeometry args={[3, 4, 128, 128]} />
+
+            <shaderMaterial
+                ref={materialRef}
+                vertexShader={vertexShader}
+                fragmentShader={fragmentShader}
+                side={THREE.DoubleSide}
+                uniforms={{
+                    uTime: { value: 0 },
+                    uTexture: { value: videoTexture },
+                    uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+                    uHover: { value: 0 },
+                }}
+            />
+        </mesh>
+    );
 }
 
 export default function ClothScene() {
-  return (
-    <div className="w-full h-full bg-transparent flex items-center justify-center relative">
-      <Canvas
-        camera={{ position: [0, 0, 6], fov: 45 }}
-        gl={{ alpha: true, antialias: true }}
-      >
-        <ambientLight intensity={1} />
-        <Environment preset="city" />
+    return (
+        <div className="w-full h-full bg-transparent flex items-center justify-center relative">
+            <Canvas
+                camera={{ position: [0, 0, 6], fov: 45 }}
+                gl={{ alpha: true, antialias: true }}
+            >
+                <ambientLight intensity={1} />
+                {/* 更改为加载本地 public 目录下的 EXR 环境光文件 */}
+                <Environment files="/brown_photostudio_02_1k.exr" />
 
-        <InteractiveCloth />
+                <InteractiveCloth />
 
-        <OrbitControls 
-          enablePan={false}
-          enableZoom={false}
-          enableRotate={false}
-          minDistance={3} 
-          maxDistance={12} 
-        />
-      </Canvas>
-    </div>
-  );
+                <OrbitControls
+                    enablePan={false}
+                    enableZoom={false}
+                    enableRotate={false}
+                    minDistance={3}
+                    maxDistance={12}
+                />
+            </Canvas>
+        </div>
+    );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import WaterfallGallery from "./components/WaterfallGallery";
+import WaterfallGallery from "./components/waterfall-gallery/WaterfallGallery";
 import HeroComponent from "./layout/HeroComponent";
 import FeatureSection from "./layout/FeatureSection";
 import LandingComponent from "./components/LandingComponent";

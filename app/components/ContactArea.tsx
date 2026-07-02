@@ -82,13 +82,16 @@ export const ContactArea = () => {
         "w-full px-3 bg-gradient-to-b from-[#dcdcdc] to-[#eeeeee] border border-[#a1a1a1] rounded-[4px] shadow-[inset_0_2px_5px_rgba(0,0,0,0.15),0_1px_0_rgba(255,255,255,1)] text-xs font-normal text-[#333] placeholder:text-[#8b8b8b] outline-none focus:border-[#7a7a7a] focus:shadow-[inset_0_2px_5px_rgba(0,0,0,0.25),0_1px_0_rgba(255,255,255,1)] transition-all";
 
     return (
-        <section className="w-full px-4 pt-36 pb-12 md:px-8 flex flex-col items-center bg-[#c4c4c4]">
+        <section
+            id="contact-section"
+            className="w-full px-4 pt-36 pb-12 md:px-8 flex flex-col items-center bg-[#c4c4c4]"
+        >
             <div className="w-full max-w-7xl mx-auto flex flex-col">
                 {/* 顶部行：左侧图标，右侧标题 */}
-                <div className="w-full flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-                    <div className="flex items-center gap-8">
-                        <ContactIcon1 className="h-[96px] w-auto" />
-                        <ContactIcon2 className="h-[96px] w-auto" />
+                <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
+                    <div className="flex items-center gap-12 md:ap-8">
+                        <ContactIcon1 className="h-[72px] md:h-[96px] w-auto" />
+                        <ContactIcon2 className="h-[72px] md:h-[96px] w-auto" />
                     </div>
                     {/* 匹配 96px 完美居中高度 */}
                     <h2 className="text-5xl md:text-[53px] font-black text-black uppercase text-left md:text-right leading-none md:leading-[0.9] tracking-tighter">
@@ -146,13 +149,15 @@ export const ContactArea = () => {
                     </div>
 
                     {/* 右侧：图标 */}
-                    <div className="flex flex-col w-full md:w-auto">
+                    <div className="flex flex-col items-center w-full md:w-auto">
                         {/* 图标：直接放置，圆角矩形质感 */}
                         <div className="flex gap-4 items-center">
                             {/* 小红书 */}
                             <a
                                 href="https://www.xiaohongshu.com/user/profile/62e78c72000000001f0062f3"
                                 title="Redbook"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-[10px] bg-gradient-to-b from-[#f0f0f0] to-[#e0e0e0] border border-[#a1a1a1] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_2px_3px_rgba(0,0,0,0.15)] text-[#FF2442] hover:brightness-110 hover:-translate-y-px active:translate-y-px active:shadow-none transition-all duration-200 flex items-center justify-center"
                             >
                                 <RedbookIcon className="w-[22px] h-[22px]" />
@@ -160,8 +165,10 @@ export const ContactArea = () => {
 
                             {/* Instagram */}
                             <a
-                                href="#"
+                                href="https://www.instagram.com/icesphere_727"
                                 title="Instagram"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-[10px] bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] border border-[#a1a1a1] shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_2px_3px_rgba(0,0,0,0.15)] text-white hover:brightness-110 hover:-translate-y-px active:translate-y-px active:shadow-none transition-all duration-200 flex items-center justify-center"
                             >
                                 <InstagramIcon className="w-[22px] h-[22px]" />
@@ -169,8 +176,10 @@ export const ContactArea = () => {
 
                             {/* GitHub */}
                             <a
-                                href="#"
+                                href="https://github.com/iceSPHERE8"
                                 title="GitHub"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-[10px] bg-gradient-to-b from-[#333333] to-[#1a1a1a] border border-[#000000] shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_2px_3px_rgba(0,0,0,0.25)] text-white hover:brightness-125 hover:-translate-y-px active:translate-y-px active:shadow-none transition-all duration-200 flex items-center justify-center"
                             >
                                 <GithubIcon className="w-[22px] h-[22px]" />
@@ -179,7 +188,7 @@ export const ContactArea = () => {
                     </div>
                 </div>
 
-                <div className="w-full flex flex-col items-center justify-center text-sm pt-24 text-[#000000] tracking-wide uppercase">
+                <div className="w-full flex flex-col items-center justify-center text-sm pt-8 md:pt-24 text-[#000000] tracking-wide uppercase">
                     <div className="flex flex-col items-center">
                         <a
                             href="https://beian.miit.gov.cn/"

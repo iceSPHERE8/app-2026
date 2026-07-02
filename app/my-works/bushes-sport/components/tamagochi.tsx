@@ -32,11 +32,13 @@ function TamagochiModel() {
 
     const videoElRef = useRef<HTMLVideoElement | null>(null);
     const textureRef = useRef<THREE.VideoTexture | null>(null);
+    const markerMatRef = useRef<THREE.SpriteMaterial | null>(null);
 
     // 1. 初始化
     useEffect(() => {
         if (!scene) return;
 
+        // --- 视频与屏幕材质初始化 ---
         const video = document.createElement("video");
         video.muted = true;
         video.loop = true;
@@ -54,6 +56,33 @@ function TamagochiModel() {
         texture.colorSpace = THREE.SRGBColorSpace;
         textureRef.current = texture;
 
+        // --- 动态生成交互呼吸标记的材质 ---
+        const canvas = document.createElement("canvas");
+        canvas.width = 64;
+        canvas.height = 64;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+            // 内核实心白点
+            ctx.beginPath();
+            ctx.arc(32, 32, 14, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 255, 1.0)";
+            ctx.fill();
+            // 外圈半透光晕
+            ctx.beginPath();
+            ctx.arc(32, 32, 24, 0, Math.PI * 2);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+            ctx.stroke();
+        }
+        const spriteTex = new THREE.CanvasTexture(canvas);
+        const spriteMat = new THREE.SpriteMaterial({
+            map: spriteTex,
+            transparent: true,
+            opacity: 1.0,
+            depthTest: false, // 设为 false 让标记始终显示在最上层
+        });
+        markerMatRef.current = spriteMat;
+
         scene.traverse((child) => {
             if ((child as THREE.Mesh).isMesh && child.name === "screen") {
                 const mesh = child as THREE.Mesh;
@@ -63,9 +92,20 @@ function TamagochiModel() {
                 });
             }
 
-            // 记录按钮初始位置
+            // 记录按钮初始位置并挂载标记
             if (child.name === "btn_prev" || child.name === "btn_next") {
                 child.userData.originalPosition = child.position.clone();
+                
+                // 防止 React 热更新时重复添加
+                if (!child.getObjectByName("interaction_marker")) {
+                    const sprite = new THREE.Sprite(spriteMat);
+                    sprite.name = "interaction_marker";
+                    // 缩放标记大小 (视你模型具体比例微调)
+                    sprite.scale.set(0.1, 0.1, 1);
+                    // 将标记稍微沿Y轴悬浮于按钮表面之上
+                    sprite.position.set(0, 0.05, 0); 
+                    child.add(sprite);
+                }
             }
         });
 
@@ -74,6 +114,11 @@ function TamagochiModel() {
             video.removeAttribute("src");
             video.load();
             texture.dispose();
+            
+            // 清理标记材质资源
+            spriteTex.dispose();
+            spriteMat.dispose();
+            markerMatRef.current = null;
         };
     }, [scene]);
 
@@ -89,8 +134,14 @@ function TamagochiModel() {
         }
     }, [videoIndex]);
 
-    // 3. 动画循环：只保留 Y轴物理反馈效果
+    // 3. 动画循环：按钮按压物理反馈 + 标记呼吸动画
     useFrame((state, delta) => {
+        // 更新呼吸标记的透明度
+        if (markerMatRef.current) {
+            // 通过 Math.sin 产生 0.2 ~ 0.8 的透明度波动，倍率控制呼吸快慢
+            markerMatRef.current.opacity = 0.5 + Math.sin(state.clock.elapsedTime * 4) * 0.3;
+        }
+
         scene.traverse((child) => {
             if (child.name === "btn_prev" || child.name === "btn_next") {
                 if (!child.userData.originalPosition) return;
@@ -187,7 +238,9 @@ export default function TamagochiScene() {
                     intensity={1.5}
                     castShadow
                 />
-                <Environment preset="city" />
+                
+                {/* 更改为加载本地 public 目录下的 EXR 环境光文件 */}
+                <Environment files="/brown_photostudio_02_1k.exr" />
 
                 <Suspense fallback={null}>
                     <TamagochiModel />

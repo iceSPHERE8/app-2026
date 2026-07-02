@@ -1,77 +1,152 @@
-'use client';
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import { useState } from 'react';
+"use client";
+import type { NextPage } from "next";
+// 1. 引入 useEffect
+import { useState, useEffect } from "react";
 
-// 引入刚刚重构好的两个分离组件
-import GenerativeArchitect from './canvas/GlitchArtMath';
-import ControlPanel, { initialControls } from "./canvas/components/ControlPanel"
+import GenerativeArchitect from "./canvas/GenerativeArchitect";
+import ControlPanel, {
+    initialControls,
+} from "./canvas/components/ControlPanel";
+
+import { useResponsiveControls } from "./canvas/hooks/useResponsiveControls";
+
+import Header from "../layout/Header";
 
 const LandingComponent: NextPage = () => {
-  // === 状态提升：将数据源放在最外层 ===
-  const [controls, setControls] = useState(initialControls);
-  const [isUiVisible, setIsUiVisible] = useState(false);
+    // 2. 调用响应式 Hook
+    const { controls: responsiveControls, isMounted } = useResponsiveControls();
+    
+    // 3. 本地 State，默认先用 initialControls 垫底
+    const [controls, setControls] = useState(initialControls);
+    const [isUiVisible, setIsUiVisible] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-  const updateControl = (key: string, value: any) => {
-    setControls((prev) => ({ ...prev, [key]: value }));
-  };
+    // 4. 当设备参数检测完毕（或窗口大小改变导致配置切换）时，覆盖本地状态
+    useEffect(() => {
+        if (isMounted) {
+            setControls(responsiveControls);
+        }
+    }, [responsiveControls, isMounted]);
 
-  // --- 样式变量提取 ---
-  const metalPanelClass = `relative flex items-center justify-between px-12 w-full z-50 bg-[#C4C4C4]`;
-  const metalTagClass = `flex items-center justify-center px-3 py-0.5 bg-transparent text-gray-950`;
-  const engravedTextClass = `text-gray-950`;
-  const buttonClass = `relative flex items-center justify-center px-2 py-1 rounded-full border border-[#a1a1a1] text-[11px] leading-none font-normal uppercase cursor-pointer tracking-widest bg-gradient-to-b from-[#eaeaea] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.5)] bg-transparent text-gray-950 transition-all ease-in-out duration-150 outline-none select-none hover:-translate-y-px hover:border-red-900/60 hover:from-red-100 hover:via-red-500 hover:to-red-700 hover:stops-[0%,50%,50%,100%] hover:bg-gradient-to-b hover:text-white hover:[text-shadow:0_-1px_0_rgba(0,0,0,0.5)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_8px_4px_-3px_white,inset_0_-3px_6px_rgba(0,0,0,0.3),0_2px_4px_rgba(0,0,0,0.2)] active:translate-y-px active:scale-[0.98] active:from-red-800 active:to-red-600 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_1px_1px_rgba(0,0,0,0.1)]`;
+    const handleCopyEmail = () => {
+        const email = "icesphere8@outlook.com";
 
-  return (
-    <>
-      <Head>
-        <title>Badbug.Studio | Interactive Coding \ CG Art \ Motion</title>
-      </Head>
+        navigator.clipboard
+            .writeText(email)
+            .then(() => {
+                if (typeof window !== "undefined" && window.umami) {
+                    window.umami.track("复制邮箱");
+                }
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            })
+            .catch((err) => {
+                console.error("复制失败:", err);
+            });
+    };
 
-      {/* 主容器：使用 flex-col 和 min-h-screen 构建坚固的文档流 */}
-      <div className="w-full flex flex-col bg-[#eaeaea] font-bold text-gray-950 select-none">
-        
-        {/* === 1. 顶部 Header (固定高度) === */}
-        <header className={`${metalPanelClass} h-10 flex-shrink-0`}>
-          <div className="flex items-center"><span className={`font-bold text-lg tracking-wide ${engravedTextClass}`}>BADBUG.STUDIO</span></div>
-          <div className="flex items-center text-center"><span className={`text-sm font-normal tracking-widest ${metalTagClass}`}>SINCE 2022</span></div>
-          <div className="flex items-center text-center"><span className={`font-normal text-xs tracking-widest uppercase ${engravedTextClass}`}>Interactive Coding \ CG Art \ Motion</span></div>
-          <div className="flex items-center text-right"><button className={buttonClass}>Contact me</button></div>
-        </header>
+    const updateControl = (key: string, value: any) => {
+        setControls((prev) => ({ ...prev, [key]: value }));
+    };
 
-        {/* === 2. 核心画布区域 (尺寸锁死) === */}
-        {/* flex-shrink-0 确保即便页面撑破一屏，画布的 640px 也绝不会被压缩或变形 */}
-        <main className="h-[640px] w-full bg-[#020204] relative z-0 flex-shrink-0">
-          <GenerativeArchitect controls={controls} />
-        </main>
+    const handleNavigateToGallery = (targetCategory: string) => {
+        window.dispatchEvent(
+            new CustomEvent("updateGalleryCategory", {
+                detail: { category: targetCategory },
+            }),
+        );
+        const gallerySection = document.getElementById("waterfall-gallery");
+        if (gallerySection) {
+            gallerySection.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        }
+    };
 
-        {/* === 3. 展开/折叠触发器 (物理存在于文档流中) === */}
-        <button 
-          onClick={() => setIsUiVisible(!isUiVisible)}
-          className="w-full flex-shrink-0 bg-[#eaeaea] text-black text-[9px] py-1.5 uppercase font-bold tracking-widest transition-colors duration-300 outline-none flex items-center justify-center cursor-pointer"
-        >
-          {isUiVisible ? 'Hide Control Panel' : 'Open Control Panel'}
-        </button>
+    const metalPanelClass = `relative flex items-center justify-between px-4 md:px-12 w-full z-50 bg-[#C4C4C4]`;
+    const engravedTextClass = `text-gray-950`;
+    const buttonClass = `relative flex items-center justify-center px-2 py-1 rounded-full border border-[#a1a1a1] text-[11px] leading-none font-normal uppercase cursor-pointer tracking-widest border-[#a1a1a1] bg-gradient-to-b from-[#eaeaea] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.5)] hover:-translate-y-px hover:border-blue-900/60 hover:from-blue-100 hover:via-blue-500 hover:to-blue-700 hover:stops-[0%,50%,50%,100%] hover:text-white hover:[text-shadow:0_-1px_0_rgba(0,0,0,0.5)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),inset_0_8px_4px_-3px_white,inset_0_-3px_6px_rgba(0,0,0,0.3),0_2px_4px_rgba(0,0,0,0.2)] active:translate-y-px active:scale-[0.98] active:from-blue-800 active:to-blue-600 active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_1px_1px_rgba(0,0,0,0.1)]`;
 
-        {/* === 4. 独立出来的控制面板 === */}
-        <ControlPanel 
-          controls={controls} 
-          updateControl={updateControl} 
-          isUiVisible={isUiVisible} 
-        />
+    return (
+        <>
+            <Header />
 
-        {/* === 5. 底部 Footer === */}
-        {/* mt-auto 是精髓：在 UI 隐藏时，它会自动去寻找屏幕的最底端；在 UI 展开时，它会被物理推下去 */}
-        <footer className={`${metalPanelClass} h-10 flex-shrink-0`}>
-          <div className="flex items-center"><button className={buttonClass}>Tool Lab</button></div>
-          <div className="flex items-center text-center"><span className={`font-normal text-xs tracking-widest uppercase ${engravedTextClass}`}>P5 \ ThreeJS \ Blender \ Houdini</span></div>
-          <div className="flex items-center text-right"><button className={buttonClass}>My Works</button></div>
-          <div className="flex items-center text-right"><span className={`font-normal text-xs tracking-wider uppercase ${engravedTextClass}`}>Mail to: <span className="font-bold ml-1 tracking-normal">ice.sphere8@outlook.com</span></span></div>
-        </footer>
+            <div className="w-full flex flex-col bg-[#eaeaea] font-bold text-gray-950 select-none">
+                <main className="h-[640px] w-full bg-[#020204] relative z-0 flex-shrink-0 flex items-center justify-center">
+                    {/* 5. 挂载完成后才渲染 Canvas 和 ControlPanel，避免水合闪烁 */}
+                    {isMounted ? (
+                        <GenerativeArchitect controls={controls} />
+                    ) : (
+                        <div className="text-white font-normal text-xs uppercase tracking-widest animate-pulse">
+                            Initializing Engine...
+                        </div>
+                    )}
+                </main>
 
-      </div>
-    </>
-  );
+                <button
+                    onClick={() => setIsUiVisible(!isUiVisible)}
+                    className="w-full flex-shrink-0 bg-[#eaeaea] text-black text-[9px] py-1.5 uppercase font-bold tracking-widest transition-colors duration-300 outline-none flex items-center justify-center cursor-pointer"
+                >
+                    {isUiVisible ? "Hide Control Panel" : "Open Control Panel"}
+                </button>
+
+                {isMounted && (
+                    <ControlPanel
+                        controls={controls}
+                        updateControl={updateControl}
+                        isUiVisible={isUiVisible}
+                    />
+                )}
+
+                <footer className={`${metalPanelClass} h-10 flex-shrink-0`}>
+                    <div className="flex items-center">
+                        <button
+                            className={buttonClass}
+                            onClick={() => handleNavigateToGallery("tool")}
+                        >
+                            Tool Lab
+                        </button>
+                    </div>
+
+                    <div className="hidden md:flex items-center text-center">
+                        <span
+                            className={`font-normal text-xs tracking-widest uppercase ${engravedTextClass}`}
+                        >
+                            P5 \ ThreeJS \ Blender \ Houdini
+                        </span>
+                    </div>
+
+                    <div className="flex items-center text-right gap-12 md:gap-4">
+                        <button
+                            className={buttonClass}
+                            onClick={() => handleNavigateToGallery("all works")}
+                        >
+                            My Works
+                        </button>
+                        <div className="flex items-center text-right">
+                            <span
+                                className={`font-normal text-[10px] md:text-xs tracking-wider uppercase ${engravedTextClass}`}
+                            >
+                                <span className="hidden sm:inline">
+                                    Mail to:{" "}
+                                </span>
+                                <span
+                                    onClick={handleCopyEmail}
+                                    title="点击复制"
+                                    className="font-bold sm:ml-1 tracking-normal cursor-pointer hover:opacity-70 active:scale-[0.98] transition-all inline-block select-none"
+                                >
+                                    {copied
+                                        ? "COPIED!"
+                                        : "icesphere8@outlook.com"}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </>
+    );
 };
 
 export default LandingComponent;
