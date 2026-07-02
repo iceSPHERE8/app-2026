@@ -1,4 +1,4 @@
-import LogoTextIcon from "../icons/LogoTextIcon";
+import LogoTextIcon from "../components/icons/LogoTextIcon";
 
 export default function Footer() {
     return (

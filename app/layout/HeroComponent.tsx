@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import MailIcon from '../icons/MailIcon';
+import MailIcon from '../components/icons/MailIcon';
 
 export interface HeroProps {
   backgroundElement?: ReactNode;

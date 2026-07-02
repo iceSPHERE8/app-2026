@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-import Footer from "./components/layout/footer";
+import Footer from "./layout/footer";
 
 export const metadata: Metadata = {
     title: "BadBug.studio",

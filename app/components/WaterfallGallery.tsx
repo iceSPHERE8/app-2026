@@ -1,18 +1,31 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { ExternalLink, ChevronDown, ChevronLeft, ChevronRight, Images } from "lucide-react";
+import {
+    ExternalLink,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Images,
+} from "lucide-react";
 
 // 声明全局 umami 类型，避免 TS 报错
 declare global {
     interface Window {
         umami: {
             track: (eventName: string, eventData?: Record<string, any>) => void;
-        }
+        };
     }
 }
 
-type MediaType = "image" | "image-list" | "video" | "p5" | "glsl" | "3d" | "text";
+type MediaType =
+    | "image"
+    | "image-list"
+    | "video"
+    | "p5"
+    | "glsl"
+    | "3d"
+    | "text";
 type RenderMode = "cover" | "direct";
 
 interface ShowcaseItem {
@@ -54,18 +67,24 @@ const FullScreenViewer = ({
     // Umami 埋点：监听弹窗的打开与关闭，记录播放及停留时长
     useEffect(() => {
         if (!item) return;
-        
+
         const startTime = Date.now();
         const projectName = item.title || "未命名作品";
 
-        if (typeof window !== 'undefined' && window.umami) {
-            window.umami.track('查看作品', { project: projectName, action: '打开弹窗' });
+        if (typeof window !== "undefined" && window.umami) {
+            window.umami.track("查看作品", {
+                project: projectName,
+                action: "打开弹窗",
+            });
         }
 
         return () => {
             const duration = Math.round((Date.now() - startTime) / 1000);
-            if (typeof window !== 'undefined' && window.umami && duration > 2) {
-                window.umami.track('作品停留', { project: projectName, duration });
+            if (typeof window !== "undefined" && window.umami && duration > 2) {
+                window.umami.track("作品停留", {
+                    project: projectName,
+                    duration,
+                });
             }
         };
     }, [item]);
@@ -79,9 +98,13 @@ const FullScreenViewer = ({
         const handleKeyDown = (e: KeyboardEvent) => {
             if (!item || item.type !== "image-list" || !item.imageList) return;
             if (e.key === "ArrowLeft") {
-                setCurrentIndex((prev) => (prev > 0 ? prev - 1 : item.imageList!.length - 1));
+                setCurrentIndex((prev) =>
+                    prev > 0 ? prev - 1 : item.imageList!.length - 1,
+                );
             } else if (e.key === "ArrowRight") {
-                setCurrentIndex((prev) => (prev < item.imageList!.length - 1 ? prev + 1 : 0));
+                setCurrentIndex((prev) =>
+                    prev < item.imageList!.length - 1 ? prev + 1 : 0,
+                );
             } else if (e.key === "Escape") {
                 onClose();
             }
@@ -92,16 +115,25 @@ const FullScreenViewer = ({
 
     if (!item) return null;
 
-    const isList = item.type === "image-list" && item.imageList && item.imageList.length > 0;
+    const isList =
+        item.type === "image-list" &&
+        item.imageList &&
+        item.imageList.length > 0;
 
     const handlePrev = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (isList) setCurrentIndex((prev) => (prev > 0 ? prev - 1 : item.imageList!.length - 1));
+        if (isList)
+            setCurrentIndex((prev) =>
+                prev > 0 ? prev - 1 : item.imageList!.length - 1,
+            );
     };
 
     const handleNext = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (isList) setCurrentIndex((prev) => (prev < item.imageList!.length - 1 ? prev + 1 : 0));
+        if (isList)
+            setCurrentIndex((prev) =>
+                prev < item.imageList!.length - 1 ? prev + 1 : 0,
+            );
     };
 
     return (
@@ -114,41 +146,72 @@ const FullScreenViewer = ({
                 onClick={onClose}
                 title="close"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
 
-            <div className="relative w-full h-full flex items-center justify-center group" onClick={(e) => e.stopPropagation()}>
+            <div
+                className="relative w-full h-full flex items-center justify-center group"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {item.type === "image" && item.content && (
-                    <img src={item.content} alt="Fullscreen view" className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-300" />
+                    <img
+                        src={item.content}
+                        alt="Fullscreen view"
+                        className="max-w-full max-h-full object-contain animate-in fade-in zoom-in duration-300"
+                    />
                 )}
 
                 {item.type === "video" && item.content && (
-                    <video src={item.content} controls autoPlay className="max-w-full max-h-full outline-none animate-in fade-in zoom-in duration-300" />
+                    <video
+                        src={item.content}
+                        controls
+                        autoPlay
+                        className="max-w-full max-h-full outline-none animate-in fade-in zoom-in duration-300"
+                    />
                 )}
 
                 {isList && (
                     <>
-                        <img 
+                        <img
                             key={currentIndex}
-                            src={item.imageList![currentIndex]} 
-                            alt={`Fullscreen view ${currentIndex + 1}`} 
-                            className="max-w-full max-h-full object-contain animate-in fade-in duration-300" 
+                            src={item.imageList![currentIndex]}
+                            alt={`Fullscreen view ${currentIndex + 1}`}
+                            className="max-w-full max-h-full object-contain animate-in fade-in duration-300"
                         />
-                        
+
                         {item.imageList!.length > 1 && (
                             <>
-                                <button onClick={handlePrev} title="prev" className="absolute left-4 md:left-12 p-3 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-all backdrop-blur opacity-0 group-hover:opacity-100">
+                                <button
+                                    onClick={handlePrev}
+                                    title="prev"
+                                    className="absolute left-4 md:left-12 p-3 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-all backdrop-blur opacity-0 group-hover:opacity-100"
+                                >
                                     <ChevronLeft className="w-8 h-8" />
                                 </button>
-                                <button onClick={handleNext} title="nex" className="absolute right-4 md:right-12 p-3 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-all backdrop-blur opacity-0 group-hover:opacity-100">
+                                <button
+                                    onClick={handleNext}
+                                    title="nex"
+                                    className="absolute right-4 md:right-12 p-3 rounded-full bg-black/50 text-white/70 hover:text-white hover:bg-black/80 transition-all backdrop-blur opacity-0 group-hover:opacity-100"
+                                >
                                     <ChevronRight className="w-8 h-8" />
                                 </button>
-                                
+
                                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/60 backdrop-blur text-white/80 text-xs font-mono tracking-widest">
-                                    {currentIndex + 1} / {item.imageList!.length}
+                                    {currentIndex + 1} /{" "}
+                                    {item.imageList!.length}
                                 </div>
                             </>
                         )}
@@ -159,40 +222,65 @@ const FullScreenViewer = ({
     );
 };
 
-const SkeuomorphicDropdown = ({ label, options, value, onChange }: { label: string; options: string[]; value: string; onChange: (val: string) => void; }) => {
+const SkeuomorphicDropdown = ({
+    label,
+    options,
+    value,
+    onChange,
+}: {
+    label: string;
+    options: string[];
+    value: string;
+    onChange: (val: string) => void;
+}) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setIsOpen(false);
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target as Node)
+            )
+                setIsOpen(false);
         };
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
         <div className="relative flex flex-col items-start" ref={dropdownRef}>
-            <span className="text-[#000000] font-heading text-[10px] pl-0.5 tracking-widest">{label}</span>
+            <span className="text-[#000000] font-heading text-[10px] pl-0.5 tracking-widest">
+                {label}
+            </span>
             <div className="relative">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     className={`relative flex items-center justify-between min-w-30 px-2 py-1 rounded-full border border-[#a1a1a1] text-[11px] leading-none font-table font-black uppercase transition-all ease-in-out duration-150 cursor-pointer ${
-                        isOpen ? "translate-y-px bg-linear-to-b from-[#c4c4c4] via-[#d4d4d4] to-[#e6e6e6] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.3),0_0px_0px_rgba(0,0,0,0)] text-[#333333]"
-                               : "bg-linear-to-b from-[#ffffff] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.3)] hover:from-[#ffffff] hover:via-[#f0f0f0] hover:to-[#e0e0e0] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),0_2px_4px_rgba(0,0,0,0.4)]"
+                        isOpen
+                            ? "translate-y-px bg-linear-to-b from-[#c4c4c4] via-[#d4d4d4] to-[#e6e6e6] shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.3),0_0px_0px_rgba(0,0,0,0)] text-[#333333]"
+                            : "bg-linear-to-b from-[#ffffff] via-[#e6e6e6] to-[#ababab] text-[#4a4a4a] [text-shadow:0_1px_0_rgba(255,255,255,0.8)] shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1.5px_3px_rgba(0,0,0,0.3)] hover:from-[#ffffff] hover:via-[#f0f0f0] hover:to-[#e0e0e0] hover:shadow-[inset_0_1px_0_rgba(255,255,255,1),0_2px_4px_rgba(0,0,0,0.4)]"
                     }`}
                 >
                     <span>{value}</span>
-                    <ChevronDown className={`w-3 h-3 ml-2 transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"}`} />
+                    <ChevronDown
+                        className={`w-3 h-3 ml-2 transition-transform duration-200 ${isOpen ? "rotate-180" : "rotate-0"}`}
+                    />
                 </button>
                 {isOpen && (
                     <div className="absolute top-full left-0 mt-1.5 w-full min-w-30 z-50 bg-linear-to-b from-[#f5f5f5] to-[#d4d4d4] border border-[#a1a1a1] rounded-lg shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.9)] overflow-hidden p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-200">
                         {options.map((opt) => (
                             <button
                                 key={opt}
-                                onClick={() => { onChange(opt); setIsOpen(false); }}
+                                onClick={() => {
+                                    onChange(opt);
+                                    setIsOpen(false);
+                                }}
                                 className={`w-full text-left px-2 py-1.5 rounded-[3px] text-[10px] font-table font-black uppercase transition-all duration-150 ${
-                                    value === opt ? "bg-[#c4c4c4] text-[#333333] shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]" : "text-[#5a5a5a] hover:bg-white/60 hover:text-[#222222]"
+                                    value === opt
+                                        ? "bg-[#c4c4c4] text-[#333333] shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]"
+                                        : "text-[#5a5a5a] hover:bg-white/60 hover:text-[#222222]"
                                 }`}
                             >
                                 {opt}
@@ -218,129 +306,208 @@ const MediaCard = ({
 
     const aspectClass = aspectClassMap[item.aspectRatio] || "aspect-square";
     const isAutoAspect = aspectClass === "aspect-auto";
-    const videoUrl = item.previewVideoUrl || (item.type === "video" ? item.content : null);
-    const isInteractiveType = item.type === "3d" || item.type === "glsl" || item.type === "p5";
+    const videoUrl =
+        item.previewVideoUrl || (item.type === "video" ? item.content : null);
+    const isInteractiveType =
+        item.type === "3d" || item.type === "glsl" || item.type === "p5";
     const showIframe = isInteractiveType && item.renderMode === "direct";
     const showCover = !isInteractiveType || item.renderMode !== "direct";
-    const targetUrl = item.detailLink || (isInteractiveType ? item.content : null);
+    const targetUrl =
+        item.detailLink || (isInteractiveType ? item.content : null);
     const hasLink = !!targetUrl;
 
     const coverContainerClass = isAutoAspect
-        ? "relative w-full transition-opacity duration-700 z-10" 
+        ? "relative w-full transition-opacity duration-700 z-10"
         : "absolute inset-0 w-full h-full transition-opacity duration-700 z-10";
 
     const sliderImageClass = isAutoAspect
         ? "w-full h-auto object-cover block flex-shrink-0"
-        : "w-full h-full object-cover flex-shrink-0";      
+        : "w-full h-full object-cover flex-shrink-0";
 
     const singleMediaClass = isAutoAspect
-        ? "w-full h-auto object-cover block" 
+        ? "w-full h-auto object-cover block"
         : "absolute inset-0 w-full h-full object-cover";
 
     useEffect(() => {
-        if (item.type !== "image-list" || !item.imageList || item.imageList.length <= 1) return;
+        if (
+            item.type !== "image-list" ||
+            !item.imageList ||
+            item.imageList.length <= 1
+        )
+            return;
         if (isHovered) return;
 
         const timer = setInterval(() => {
-            setCurrentImgIndex((prev) => 
-                prev < item.imageList!.length - 1 ? prev + 1 : 0
+            setCurrentImgIndex((prev) =>
+                prev < item.imageList!.length - 1 ? prev + 1 : 0,
             );
-        }, 3000); 
+        }, 3000);
 
         return () => clearInterval(timer);
     }, [item.type, item.imageList, isHovered]);
 
     useEffect(() => {
         if (item.type !== "text" && showCover) {
-            const hasMedia = videoUrl || item.coverUrl || (item.type === "image" && item.content) || (item.type === "image-list" && item.imageList?.length);
+            const hasMedia =
+                videoUrl ||
+                item.coverUrl ||
+                (item.type === "image" && item.content) ||
+                (item.type === "image-list" && item.imageList?.length);
             if (!hasMedia) setIsLoaded(true);
         }
-    }, [item.type, showCover, videoUrl, item.coverUrl, item.content, item.imageList]);
+    }, [
+        item.type,
+        showCover,
+        videoUrl,
+        item.coverUrl,
+        item.content,
+        item.imageList,
+    ]);
 
     // 卡片埋点相关交互
     const handleCardClick = () => {
         const projectName = item.title || "未命名作品";
-        
+
         if (hasLink && targetUrl) {
-            if (typeof window !== 'undefined' && window.umami) {
-                window.umami.track('查看作品', { project: projectName, action: '页面跳转' });
+            if (typeof window !== "undefined" && window.umami) {
+                window.umami.track("查看作品", {
+                    project: projectName,
+                    action: "页面跳转",
+                });
             }
             window.open(targetUrl, "_blank");
-        } else if (item.type === "image" || item.type === "video" || item.type === "image-list") {
+        } else if (
+            item.type === "image" ||
+            item.type === "video" ||
+            item.type === "image-list"
+        ) {
             onOpenFullscreen(item);
         }
     };
 
     const handleIconJump = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (typeof window !== 'undefined' && window.umami) {
-            window.umami.track('查看作品', { project: item.title || "未命名作品", action: '页面跳转' });
+        if (typeof window !== "undefined" && window.umami) {
+            window.umami.track("查看作品", {
+                project: item.title || "未命名作品",
+                action: "页面跳转",
+            });
         }
         if (targetUrl) window.open(targetUrl, "_blank");
     };
 
     const handleCardPrev = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (item.imageList) setCurrentImgIndex((prev) => (prev > 0 ? prev - 1 : item.imageList!.length - 1));
+        if (item.imageList)
+            setCurrentImgIndex((prev) =>
+                prev > 0 ? prev - 1 : item.imageList!.length - 1,
+            );
     };
     const handleCardNext = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (item.imageList) setCurrentImgIndex((prev) => (prev < item.imageList!.length - 1 ? prev + 1 : 0));
+        if (item.imageList)
+            setCurrentImgIndex((prev) =>
+                prev < item.imageList!.length - 1 ? prev + 1 : 0,
+            );
     };
 
     return (
-        <div className={`break-inside-avoid mb-6 w-full block group cursor-pointer`} onClick={handleCardClick}>
-            <div className={`relative overflow-hidden ${aspectClass} w-full bg-[#0a0a0a] ${isAutoAspect ? 'min-h-50' : ''}`}>
-                
+        <div
+            className={`break-inside-avoid mb-6 w-full block group cursor-pointer`}
+            onClick={handleCardClick}
+        >
+            <div
+                className={`relative overflow-hidden ${aspectClass} w-full bg-[#0a0a0a] ${isAutoAspect ? "min-h-50" : ""}`}
+            >
                 {!isLoaded && (
                     <div className="absolute inset-0 z-40 bg-white/5 animate-pulse flex flex-col items-center justify-center">
                         <div className="w-8 h-px bg-white/20 mb-2"></div>
-                        <span className="font-mono text-[10px] text-white/30 tracking-widest uppercase">{item.type}</span>
+                        <span className="font-mono text-[10px] text-white/30 tracking-widest uppercase">
+                            {item.type}
+                        </span>
                     </div>
                 )}
 
                 {showCover && (
-                    <div className={`${coverContainerClass} ${isLoaded ? "opacity-100" : "opacity-0"}`}>
+                    <div
+                        className={`${coverContainerClass} ${isLoaded ? "opacity-100" : "opacity-0"}`}
+                    >
                         {item.type === "text" ? (
-                            <div className={`w-full relative flex flex-col justify-center items-center text-center p-8 overflow-hidden ${isAutoAspect ? 'min-h-50' : 'h-full'}`}>
+                            <div
+                                className={`w-full relative flex flex-col justify-center items-center text-center p-8 overflow-hidden ${isAutoAspect ? "min-h-50" : "h-full"}`}
+                            >
                                 {item.textBgUrl && (
-                                    <div className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-screen" style={{ backgroundImage: `url(${item.textBgUrl})` }} />
+                                    <div
+                                        className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-screen"
+                                        style={{
+                                            backgroundImage: `url(${item.textBgUrl})`,
+                                        }}
+                                    />
                                 )}
-                                <div className="relative z-10 font-heading text-2xl font-black text-[#eaeaea] uppercase leading-tight">{item.content}</div>
+                                <div className="relative z-10 font-heading text-2xl font-black text-[#eaeaea] uppercase leading-tight">
+                                    {item.content}
+                                </div>
                             </div>
                         ) : videoUrl ? (
-                            <video src={videoUrl} autoPlay muted loop playsInline className={singleMediaClass} onLoadedData={() => setIsLoaded(true)} />
-                        ) : item.type === "image-list" && item.imageList && item.imageList.length > 0 ? (
-                            <div 
-                                className={`w-full relative group/slider ${isAutoAspect ? '' : 'h-full'}`}
+                            <video
+                                src={videoUrl}
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                className={singleMediaClass}
+                                onLoadedData={() => setIsLoaded(true)}
+                            />
+                        ) : item.type === "image-list" &&
+                          item.imageList &&
+                          item.imageList.length > 0 ? (
+                            <div
+                                className={`w-full relative group/slider ${isAutoAspect ? "" : "h-full"}`}
                                 onMouseEnter={() => setIsHovered(true)}
                                 onMouseLeave={() => setIsHovered(false)}
                             >
-                                <div className={`w-full overflow-hidden ${isAutoAspect ? '' : 'h-full'}`}>
-                                    <div 
+                                <div
+                                    className={`w-full overflow-hidden ${isAutoAspect ? "" : "h-full"}`}
+                                >
+                                    <div
                                         className="flex h-full transition-transform duration-500 ease-out"
-                                        style={{ transform: `translateX(-${currentImgIndex * 100}%)` }}
+                                        style={{
+                                            transform: `translateX(-${currentImgIndex * 100}%)`,
+                                        }}
                                     >
                                         {item.imageList.map((url, idx) => (
-                                            <img 
-                                                key={idx} 
-                                                src={url} 
-                                                alt={`${item.title || "gallery"} - ${idx}`} 
+                                            <img
+                                                key={idx}
+                                                src={url}
+                                                alt={`${item.title || "gallery"} - ${idx}`}
                                                 className={sliderImageClass}
-                                                onLoad={idx === 0 ? () => setIsLoaded(true) : undefined} 
+                                                onLoad={
+                                                    idx === 0
+                                                        ? () =>
+                                                              setIsLoaded(true)
+                                                        : undefined
+                                                }
                                             />
                                         ))}
                                     </div>
                                 </div>
-                                
+
                                 {item.imageList.length > 1 && (
                                     <>
                                         <div className="absolute inset-0 bg-linear-to-b from-black/0 via-transparent to-black/40 opacity-0 group-hover/slider:opacity-100 transition-opacity pointer-events-none" />
-                                        
-                                        <button onClick={handleCardPrev} title="prev" className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white/80 hover:bg-black/80 hover:text-white backdrop-blur opacity-0 group-hover/slider:opacity-100 transition-all z-20">
+
+                                        <button
+                                            onClick={handleCardPrev}
+                                            title="prev"
+                                            className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white/80 hover:bg-black/80 hover:text-white backdrop-blur opacity-0 group-hover/slider:opacity-100 transition-all z-20"
+                                        >
                                             <ChevronLeft className="w-4 h-4" />
                                         </button>
-                                        <button onClick={handleCardNext} title="next" className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white/80 hover:bg-black/80 hover:text-white backdrop-blur opacity-0 group-hover/slider:opacity-100 transition-all z-20">
+                                        <button
+                                            onClick={handleCardNext}
+                                            title="next"
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white/80 hover:bg-black/80 hover:text-white backdrop-blur opacity-0 group-hover/slider:opacity-100 transition-all z-20"
+                                        >
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
 
@@ -354,8 +521,8 @@ const MediaCard = ({
                                                     }}
                                                     title="index"
                                                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                                                        idx === currentImgIndex 
-                                                            ? "w-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.6)]" 
+                                                        idx === currentImgIndex
+                                                            ? "w-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.6)]"
                                                             : "w-1.5 bg-white/40 hover:bg-white/80"
                                                     }`}
                                                 />
@@ -370,31 +537,62 @@ const MediaCard = ({
                                 )}
                             </div>
                         ) : item.coverUrl ? (
-                            <img src={item.coverUrl} alt={item.title || "artwork"} className={singleMediaClass} onLoad={() => setIsLoaded(true)} />
+                            <img
+                                src={item.coverUrl}
+                                alt={item.title || "artwork"}
+                                className={singleMediaClass}
+                                onLoad={() => setIsLoaded(true)}
+                            />
                         ) : item.type === "image" && item.content ? (
-                            <img src={item.content} alt={item.title || "artwork"} className={singleMediaClass} onLoad={() => setIsLoaded(true)} />
+                            <img
+                                src={item.content}
+                                alt={item.title || "artwork"}
+                                className={singleMediaClass}
+                                onLoad={() => setIsLoaded(true)}
+                            />
                         ) : (
-                            <div className={`${isAutoAspect ? 'relative min-h-50' : 'absolute inset-0 h-full'} w-full flex flex-col items-center justify-center text-zinc-800 bg-[#0a0a0a]`}>
-                                <span className="text-[10px] uppercase tracking-widest font-bold">NO COVER</span>
+                            <div
+                                className={`${isAutoAspect ? "relative min-h-50" : "absolute inset-0 h-full"} w-full flex flex-col items-center justify-center text-zinc-800 bg-[#0a0a0a]`}
+                            >
+                                <span className="text-[10px] uppercase tracking-widest font-bold">
+                                    NO COVER
+                                </span>
                             </div>
                         )}
                     </div>
                 )}
 
                 {showIframe && item.content && (
-                    <iframe src={item.content} title={item.title || "Interactive Content"} className={`${isAutoAspect ? 'relative min-h-75' : 'absolute inset-0 h-full'} w-full border-none z-30 bg-[#0a0a0a]`} loading="lazy" sandbox="allow-scripts allow-same-origin" onLoad={() => setIsLoaded(true)} />
+                    <iframe
+                        src={item.content}
+                        title={item.title || "Interactive Content"}
+                        className={`${isAutoAspect ? "relative min-h-75" : "absolute inset-0 h-full"} w-full border-none z-30 bg-[#0a0a0a]`}
+                        loading="lazy"
+                        sandbox="allow-scripts allow-same-origin"
+                        onLoad={() => setIsLoaded(true)}
+                    />
                 )}
 
-                {!showIframe && <div className="absolute inset-0 z-10 pointer-events-auto bg-transparent hover:bg-white/5 transition-colors duration-300" />}
+                {!showIframe && (
+                    <div className="absolute inset-0 z-10 pointer-events-auto bg-transparent hover:bg-white/5 transition-colors duration-300" />
+                )}
             </div>
 
             {(item.title || hasLink) && (
                 <div className="w-full">
                     <div className="text-left w-full overflow-hidden">
                         <div className="flex items-center justify-between w-full pt-1.5 text-[12px]  uppercase transition-all duration-300 ease-out rounded-none font-heading text-black">
-                            {item.title && <span className="truncate flex-1 pr-2">{item.title}</span>}
+                            {item.title && (
+                                <span className="truncate flex-1 pr-2">
+                                    {item.title}
+                                </span>
+                            )}
                             {hasLink && (
-                                <button onClick={handleIconJump} title="Open Link" className="shrink-0 pointer-events-auto flex items-center justify-center hover:opacity-70 transition-opacity">
+                                <button
+                                    onClick={handleIconJump}
+                                    title="Open Link"
+                                    className="shrink-0 pointer-events-auto flex items-center justify-center hover:opacity-70 transition-opacity"
+                                >
                                     <ExternalLink className="w-3.5 h-3.5 text-black" />
                                 </button>
                             )}
@@ -414,6 +612,8 @@ export default function WaterfallGallery() {
 
     const [categoryFilter, setCategoryFilter] = useState("all works");
     const [mediaFilter, setMediaFilter] = useState("all works");
+
+    const observerTarget = useRef<HTMLDivElement>(null);
 
     const categories = ["all works", "project", "practice", "tool"];
     const mediaTypes = ["all works", "video", "interactive coding", "image"];
@@ -442,13 +642,16 @@ export default function WaterfallGallery() {
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
-            const matchCategory = categoryFilter === "all works" || item.category === categoryFilter;
+            const matchCategory =
+                categoryFilter === "all works" ||
+                item.category === categoryFilter;
 
             let matchMedia = true;
             if (mediaFilter === "video") {
                 matchMedia = item.type === "video";
             } else if (mediaFilter === "image") {
-                matchMedia = item.type === "image" || item.type === "image-list";
+                matchMedia =
+                    item.type === "image" || item.type === "image-list";
             } else if (mediaFilter === "interactive coding") {
                 matchMedia = ["p5", "glsl", "3d"].includes(item.type);
             }
@@ -458,6 +661,28 @@ export default function WaterfallGallery() {
     }, [items, categoryFilter, mediaFilter]);
 
     const visibleItems = filteredItems.slice(0, visibleCount);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            (entries) => {
+                // 当目标元素进入视口，且还有未展示的作品时，触发加载更多
+                if (
+                    entries[0].isIntersecting &&
+                    visibleCount < filteredItems.length
+                ) {
+                    handleLoadMore();
+                }
+            },
+            // rootMargin: "0px 0px 400px 0px" 表示距离底部还有 400px 时就开始提前加载，体验更丝滑
+            { rootMargin: "0px 0px 400px 0px" },
+        );
+
+        if (observerTarget.current) {
+            observer.observe(observerTarget.current);
+        }
+
+        return () => observer.disconnect();
+    }, [visibleCount, filteredItems.length]); // 监听数量变化
 
     if (loading) {
         return (
@@ -472,7 +697,7 @@ export default function WaterfallGallery() {
     return (
         <>
             <section className="w-full min-h-screen px-4 md:px-8 py-12 flex flex-col items-center">
-                <div className="w-full flex flex-wrap justify-start border-[#8b8b8b] pb-4 items-end gap-9 select-none">
+                <div className="sticky top-0 z-40 pt-4 w-full flex flex-wrap justify-start pb-10 mb-6 items-end gap-9 select-none bg-linear-to-b from-[#eaeaea] from-35% to-transparent border-none rounded-none shadow-none">
                     <SkeuomorphicDropdown
                         label="(by Category:"
                         options={categories}
@@ -515,12 +740,14 @@ export default function WaterfallGallery() {
                 )}
 
                 {visibleCount < filteredItems.length && (
-                    <button
-                        onClick={handleLoadMore}
-                        className="mt-12 px-8 py-3 bg-transparent border border-white/20 text-white/70 font-mono text-xs uppercase tracking-widest hover:border-white/60 hover:text-white hover:bg-white/5 transition-all duration-300"
-                    >
-                        [ Load More Algorithms ]
-                    </button>
+                    <div ref={observerTarget} className="mt-12 w-full flex justify-center pb-8">
+                        <button
+                            onClick={handleLoadMore}
+                            className="px-8 py-3 bg-transparent border border-white/20 text-white/70 font-mono text-xs uppercase tracking-widest hover:border-white/60 hover:text-white hover:bg-white/5 transition-all duration-300"
+                        >
+                            [ Loading More Algorithms... ]
+                        </button>
+                    </div>
                 )}
             </section>
 

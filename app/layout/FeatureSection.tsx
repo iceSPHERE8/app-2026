@@ -1,8 +1,8 @@
 import React from 'react';
 // 根据你的描述，假定这些图标文件放在该目录下
-import SectionIcon1 from '../icons/SectionIcon_1';
-import SectionIcon2 from '../icons/SectionIcon_2';
-import SectionIcon3 from '../icons/SectionIcon_3';
+import SectionIcon1 from '../components/icons/SectionIcon_1';
+import SectionIcon2 from '../components/icons/SectionIcon_2';
+import SectionIcon3 from '../components/icons/SectionIcon_3';
 
 export interface FeatureSectionProps {
   className?: string;

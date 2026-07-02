@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 
-import Header from "./components/layout/header";
 import WaterfallGallery from "./components/WaterfallGallery";
-import HeroComponent from "./components/layout/HeroComponent";
-import FeatureSection from "./components/layout/FeatureSection";
+import HeroComponent from "./layout/HeroComponent";
+import FeatureSection from "./layout/FeatureSection";
 import LandingComponent from "./components/LandingComponent";
-
-import CustomIcon from "./components/icons/CustomIcon";
+import FooterLayout from "./layout/FooterSections";
 
 export default function Home() {
     const [viewType, setViewType] = useState<"all-works" | "tool-lab">(
@@ -21,7 +19,7 @@ export default function Home() {
             <HeroComponent />
             <FeatureSection />
             <WaterfallGallery />
-            
+            <FooterLayout />
             
             
         </div>
