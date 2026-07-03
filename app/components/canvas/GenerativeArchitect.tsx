@@ -179,7 +179,7 @@ const SymmetricalArt = ({ controls }: { controls: any }) => {
 export default function GenerativeArchitect({ controls }: { controls: any }) {
   return (
     <div className="w-full h-full">
-      <Canvas camera={{ position: [0, 0, 80], fov: 45 }}>
+      <Canvas camera={{ position: [0, 0, 80], fov: 45 }} dpr={[1, 1.25]}>
         <SymmetricalArt controls={controls} />
       </Canvas>
     </div>

@@ -26,18 +26,22 @@ export default function WaterfallGallery() {
 
     useEffect(() => {
         // 检查当前 URL 的 hash 是否是我们想要的锚点
-        if (typeof window !== "undefined" && window.location.hash === "#waterfall-gallery") {
+        if (
+            typeof window !== "undefined" &&
+            window.location.hash === "#waterfall-gallery"
+        ) {
             // 设置一个短暂的延迟，确保页面的 DOM 和图片已经渲染撑开高度
             const timer = setTimeout(() => {
-                const gallerySection = document.getElementById("waterfall-gallery");
+                const gallerySection =
+                    document.getElementById("waterfall-gallery");
                 if (gallerySection) {
-                    gallerySection.scrollIntoView({ 
-                        behavior: "smooth", 
-                        block: "start" 
+                    gallerySection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
                     });
                 }
             }, 300); // 300毫秒的延迟通常足够，如果还是不滚，可以调大到 500
-            
+
             return () => clearTimeout(timer);
         }
     }, []);
@@ -54,7 +58,10 @@ export default function WaterfallGallery() {
 
         window.addEventListener("updateGalleryCategory", handleFilterChange);
         return () =>
-            window.removeEventListener("updateGalleryCategory", handleFilterChange);
+            window.removeEventListener(
+                "updateGalleryCategory",
+                handleFilterChange,
+            );
     }, []);
 
     useEffect(() => {
@@ -134,30 +141,42 @@ export default function WaterfallGallery() {
     return (
         <>
             {/* 🌟 加入 ID 用于平滑滚动锚点定位 */}
-            <section id="waterfall-gallery" className="w-full min-h-screen px-4 md:px-8 py-12 flex flex-col items-center">
-                <div className="sticky top-0 z-40 pt-4 w-full flex flex-wrap justify-start pb-10 mb-6 items-end gap-9 select-none bg-linear-to-b from-[#eaeaea] from-35% to-transparent border-none rounded-none shadow-none">
-                    <SkeuomorphicDropdown
-                        label="(by Category:"
-                        options={categories}
-                        value={categoryFilter}
-                        onChange={(val) => {
-                            setCategoryFilter(val);
-                            setVisibleCount(24);
-                        }}
-                    />
+            <section
+                id="waterfall-gallery"
+                className="w-full min-h-screen px-4 md:px-8 py-12 flex flex-col items-center"
+            >
+                {/* 🌟 完美的吸顶筛选块：贴紧屏幕顶部，且带有向下渐变遮罩 */}
+                <div className="sticky top-0 z-50 w-full pt-20 md:pt-6 pb-4 md:pb-12 mb-6 select-none bg-[#eaeaea] md:bg-transparent md:bg-gradient-to-b md:from-[#eaeaea] md:from-60% md:to-transparent shadow-[0_8px_20px_#eaeaea] md:shadow-none">
+                    <div className="flex flex-col md:flex-row md:items-end gap-3 md:gap-9">
+                        {/* 上半区（手机端） / 左半区（PC端）：下拉菜单组 */}
+                        <div className="flex items-center gap-4 md:gap-9">
+                            <SkeuomorphicDropdown
+                                label="(by Category:"
+                                options={categories}
+                                value={categoryFilter}
+                                onChange={(val) => {
+                                    setCategoryFilter(val);
+                                    setVisibleCount(8); // 保持之前修改的内存优化数量
+                                }}
+                            />
 
-                    <SkeuomorphicDropdown
-                        label="(by Media:"
-                        options={mediaTypes}
-                        value={mediaFilter}
-                        onChange={(val) => {
-                            setMediaFilter(val);
-                            setVisibleCount(24);
-                        }}
-                    />
+                            <SkeuomorphicDropdown
+                                label="(by Media:"
+                                options={mediaTypes}
+                                value={mediaFilter}
+                                onChange={(val) => {
+                                    setMediaFilter(val);
+                                    setVisibleCount(8); // 保持之前修改的内存优化数量
+                                }}
+                            />
+                        </div>
 
-                    <div className="ml-auto font-heading tracking-wide text-[32px] text-[#000000] leading-none">
-                        ({filteredItems.length})
+                        {/* 下半区（手机端） / 右半区（PC端）：总数 */}
+                        <div className="flex justify-end md:ml-auto w-full md:w-auto mt-1 md:mt-0">
+                            <div className="font-heading tracking-wide text-[16px] md:text-[32px] text-[#000000] leading-none">
+                                ({filteredItems.length})
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -168,7 +187,9 @@ export default function WaterfallGallery() {
                                 key={item.id}
                                 item={item}
                                 // 🔴 2. 接收 item 和 rect 并存入 state
-                                onOpenFullscreen={(item, rect) => setActiveMedia({ item, rect })}
+                                onOpenFullscreen={(item, rect) =>
+                                    setActiveMedia({ item, rect })
+                                }
                             />
                         ))}
                     </div>
@@ -179,7 +200,10 @@ export default function WaterfallGallery() {
                 )}
 
                 {visibleCount < filteredItems.length && (
-                    <div ref={observerTarget} className="mt-12 w-full flex justify-center pb-8">
+                    <div
+                        ref={observerTarget}
+                        className="mt-12 w-full flex justify-center pb-8"
+                    >
                         <button
                             onClick={handleLoadMore}
                             className="px-8 py-3 bg-transparent border border-white/20 text-white/70 font-mono text-xs uppercase tracking-widest hover:border-white/60 hover:text-white hover:bg-white/5 transition-all duration-300"

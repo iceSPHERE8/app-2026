@@ -226,12 +226,13 @@
     "type": "glsl",
     "category": "tool",
     "content": "https://text-web.netlify.app/",
-    "coverUrl": "",
+    "coverUrl": "/uploads/1783061670460.png",
     "previewVideoUrl": "",
     "aspectRatio": "aspect-square",
-    "renderMode": "direct",
+    "renderMode": "cover",
     "textBgUrl": "",
-    "updatedAt": "2026-06-10T08:54:10.223Z"
+    "updatedAt": "2026-07-03T06:54:38.396Z",
+    "imageList": []
   },
   {
     "id": "1780483983821",
@@ -275,12 +276,13 @@
     "type": "p5",
     "category": "project",
     "content": "https://editor.p5js.org/fatoony/full/fI58Wv89K",
-    "coverUrl": "",
+    "coverUrl": "/uploads/1783061864796.png",
     "previewVideoUrl": "",
     "aspectRatio": "aspect-square",
-    "renderMode": "direct",
+    "renderMode": "cover",
     "textBgUrl": "",
-    "updatedAt": "2026-06-10T08:54:53.726Z"
+    "updatedAt": "2026-07-03T06:57:47.997Z",
+    "imageList": []
   },
   {
     "id": "1780483261008",

@@ -11,7 +11,7 @@ export const initialControls = {
   colorWhite: '#ffffff', colorShadow: '#0a0d14', colorAccent: '#767676', colorGrid: '#222233', colorGridDot: '#88aaff',
 };
 
-// --- 2. 基础 UI 控件（完全保留原始样式和结构） ---
+// --- 2. 基础 UI 控件 ---
 const SliderControl = ({ label, value, min, max, step = 0.01, onChange, compact }: any) => (
   <div className={`flex ${compact ? 'flex-col gap-1.5' : 'items-center gap-2'} w-full`}>
     <span className={`text-[10px] font-normal text-black ${compact ? 'w-full' : 'w-20'} truncate`} title={label}>
@@ -65,6 +65,9 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
           background: #d4d4d8; 
           border-radius: 999px;
           outline: none;
+          
+          /* 🌟 核心修复：阻止浏览器在滑块上触发横向手势返回或滚动 */
+          touch-action: pan-y; 
         }
 
         .clean-slider::-webkit-slider-thumb {
@@ -112,12 +115,8 @@ export default function ControlPanel({ controls, updateControl, isUiVisible }: a
         }
       `}</style>
 
-      {/* 修改点：
-        1. 外层加入 overflow-y-auto（移动端开启内部垂直滚动），并在 PC 端（md）恢复 overflow-hidden。
-        2. 高度从 2000px 改为 65dvh（视口高度的65%），确保在手机上 UI 不会将页面撑爆，而是内部自适应滚动。
-      */}
       <div 
-        className="w-full bg-[#a8a8a8] transition-[max-height] duration-300 ease-in-out flex-shrink-0 border-b border-[#888] overflow-y-auto md:overflow-hidden custom-scroll"
+        className="overscroll-contain w-full bg-[#a8a8a8] transition-[max-height] duration-300 ease-in-out flex-shrink-0 border-b border-[#888] overflow-y-auto md:overflow-hidden custom-scroll"
         style={{ maxHeight: isUiVisible ? '65dvh' : '0px' }} 
       >
         <div className="h-auto md:h-[240px] w-full pt-4 px-4 pb-6 flex flex-col md:flex-row flex-nowrap gap-3 items-stretch overflow-y-visible md:overflow-x-auto custom-scroll">

@@ -69,4 +69,7 @@ body {
   color: var(--foreground);
   /* 显式声明，确保覆盖浏览器默认字体 */
   font-family: var(--font-sans);
+
+  /* 彻底禁止浏览器原生的下拉刷新和边缘回弹特效 */
+  overscroll-behavior-y: none;
 }
